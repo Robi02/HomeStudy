@@ -5,7 +5,8 @@ ETNode* ET_CreateNode(ElementType NewData)
     ETNode* NewNode = (ETNode*)malloc(sizeof(ETNode));
     NewNode->Left = NULL;
     NewNode->Right = NULL;
-    NewNode->Data = (ElementType)malloc(strlen(NewData));
+    NewNode->Data = (ElementType)malloc(strlen(NewData) + 1);
+    strcpy(NewNode->Data, NewData);
 
     return NewNode;
 }
@@ -33,7 +34,7 @@ void ET_DestroyTree(ETNode* Root)
 
     ET_DestroyTree(Root->Left);
     ET_DestroyTree(Root->Right);
-    ET_DestroyTree(Root);
+    ET_DestroyNode(Root);
 }
 
 void ET_PreorderPrintTree(ETNode* Node)
@@ -67,48 +68,71 @@ void ET_PostorderPrintTree(ETNode* Node)
 
 void ET_BuildExpressionTree(char* PostfixExpression, ETNode** Node)
 {
-    int     len = strlen(PostfixExpression) - 1;
-    char    Token = PostfixExpression[len];
+    int len = strlen(PostfixExpression);
+    char Token[255];
 
-    // 이 함수만 다시...
+    memset(Token, 0x00, sizeof(Token));
 
-    fprintf(stdout, "%c\n", Token);
-    PostfixExpression[len] = '\0'; // ET_CreateNode 함수 내에서 strlen()으로 길이를 구하기 때문에 이 구문 위치 바꾸면 위험하다
+    do
+    {
+        --len;
 
-    switch (Token)
+        if (len < 0)
+        {
+            break;
+        }
+
+        Token[0] = PostfixExpression[len];
+        PostfixExpression[len] = '\0';
+    } while (Token[0] == ' ');
+
+    switch (Token[0])
     {
         case '+': case '-': case '*': case '/':
         {
-            (*Node) = ET_CreateNode(&Token);
+            (*Node) = ET_CreateNode(&Token[0]);
             ET_BuildExpressionTree(PostfixExpression, &(*Node)->Right);
             ET_BuildExpressionTree(PostfixExpression, &(*Node)->Left);
             break;
         }
         default:
         {
-            if (Token >= '0' && Token <= '9')
+            int i = len - 1, j = 1;
+
+            // Number tokenize
+            for (; i > -1; --i)
             {
-                char *pBgn = &PostfixExpression[len];
-                char *pEnd = pBgn;
-                char numBuf[255];
+                char c = PostfixExpression[i];
 
-                PostfixExpression[len] = Token;
+                fprintf(stdout, "pe: %s\n", PostfixExpression);
+                
+                if (c < '0' || c > '9')
+                {
+                    PostfixExpression[i] = c;
+                    break;
+                }
 
-                fprintf(stdout, "test_postfixexp : %s\n", PostfixExpression);
-
-                while (pBgn != PostfixExpression && *pBgn >= '0' && *pBgn <= '9') --pBgn;
-
-                memset(numBuf, 0x00, sizeof(numBuf));
-                memcpy(numBuf, pBgn, (pEnd - pBgn));
-                memset(pBgn, 0x00, (pEnd - pBgn));
-
-                fprintf(stdout, "pEnd:0x%p(%c), pBgn:0x%p(%c), len:%ld\n", pEnd, *pEnd, pBgn, *pBgn, pEnd - pBgn);
-                fprintf(stdout, "test_postfixexp : %s\n", PostfixExpression); // "71*52-/"
-                fprintf(stdout, "test_number : %s\n", numBuf);
-
-                (*Node) = ET_CreateNode(numBuf);
+                PostfixExpression[i] = '\0';
+                Token[j] = c;
+                ++j;
             }
-            
+            // Swap buffer
+            {
+                char *pN1 = &Token[0];
+                char *pN2 = &Token[strlen(Token) - 1];
+                
+                while (pN1 < pN2)
+                {
+                    char temp = *pN1;
+
+                    *pN1 = *pN2;
+                    *pN2 = temp;
+                    ++pN1;
+                    --pN2;
+                }
+            }
+
+            (*Node) = ET_CreateNode(Token);
             break;
         }
     }
@@ -124,8 +148,8 @@ double ET_Evaluate(ETNode* Tree)
     {
         case '+': case '-': case '*': case '/':
         {
-            char Left  = ET_Evaluate(Tree->Left);
-            char Right = ET_Evaluate(Tree->Right);
+            double Left  = ET_Evaluate(Tree->Left);
+            double Right = ET_Evaluate(Tree->Right);
 
             if      (Tree->Data[0] == '+') Result = Left + Right;
             else if (Tree->Data[0] == '-') Result = Left - Right;
@@ -147,7 +171,7 @@ double ET_Evaluate(ETNode* Tree)
 int ET_Test_main()
 {
     ETNode* Root = NULL;
-    char PostfixExpression[20] = "71*52-/";
+    char PostfixExpression[20] = "70 11 * 5 2 - /";
 
     ET_BuildExpressionTree(PostfixExpression, &Root);
 
