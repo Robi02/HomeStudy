@@ -5,7 +5,7 @@ PriorityQueue* PQ_Create(int InitialSize)
     PriorityQueue* NewPQ = (PriorityQueue*)malloc(sizeof(PriorityQueue));
     NewPQ->Capacity = InitialSize;
     NewPQ->UsedSize = 0;
-    NewPQ->Nodes = (PQNode*)malloc(sizeof(PQNode*) * NewPQ->Capacity);
+    NewPQ->Nodes = (PQNode*)malloc(sizeof(PQNode) * NewPQ->Capacity);
 
     return NewPQ;
 }
