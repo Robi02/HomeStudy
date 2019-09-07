@@ -23,7 +23,7 @@ public class SortLv2_002 {
             numStrAry[i] = String.valueOf(numbers[i]);
         }
 
-        System.out.println("Arrays : " + Arrays.toString(numStrAry));
+        // System.out.println("Arrays : " + Arrays.toString(numStrAry));
 
         // sort by custom rule
         Arrays.sort(numStrAry, new Comparator<String>() {
@@ -31,14 +31,21 @@ public class SortLv2_002 {
             public int compare(String o1, String o2) {
                 int o1Len = o1.length();
                 int o2Len = o2.length();
+
+                if (o1Len != o2Len) {
+                    String o12 = o1 + o2;
+                    String o21 = o2 + o1;
+                    o1 = o12;
+                    o2 = o21;
+                    o1Len = o1.length();
+                    o2Len = o2.length();
+                }
+
                 int maxLen = Math.max(o1Len, o2Len);
-
+                
                 for (int i = 0; i < maxLen; ++i) {
-                    char c1 = o1.charAt(Math.min(i, o1Len - 1));
-                    char c2 = o2.charAt(Math.min(i, o2Len - 1));
-
-                    if (i > o1Len && c1 == '0') c1 = o1.charAt(0); // ??
-                    if (i > o2Len && c2 == '0') c2 = o2.charAt(0); // 40, 403 케이스... 규칙은?
+                    char c1 = o1.charAt(i);
+                    char c2 = o2.charAt(i);
 
                     if (c1 == c2) {
                         continue;
@@ -51,7 +58,7 @@ public class SortLv2_002 {
             }
         });
 
-        System.out.println("Sroted : " + Arrays.toString(numStrAry));
+        // System.out.println("Sroted : " + Arrays.toString(numStrAry));
 
         // append string
         StringBuilder rtSb = new StringBuilder();
@@ -79,22 +86,29 @@ public class SortLv2_002 {
             array[i] = rand.nextInt(1001);
         }*/
 
-        int[] array = new int[] { 1, 10, 20, 0 };
-            // [40,403 ]
-            // [40,405]
-            // [40,404]
-            // [12,121]
-            // [2,22,223]++
-            // [70,0,0,0]
-            // [0,0,0,0]
-            // [0,0,0,1000]
-            // [12,1213]};
+        int[][] array = new int[][] {
+            //{1,10,20,0},
+            //{40,403},
+            //{40,405},
+            {40,404}, // # 40404 < 40440
+            {12,121}, // # 12121 > 12112
+            //{2,22,223},
+            //{21,212},
+            //{41,415},
+            //{2,22},
+            //{70,0,0,0},
+            //{0,0,0,0},
+            //{0,0,0,1000},
+            {12,1213}
+        };
 
-        final long bgnTime = System.currentTimeMillis();
-        final String resultStr = solution(array);
-        final long elapsedTime = System.currentTimeMillis() - bgnTime;
+        for (int i = 0; i < array.length; ++i) {
+            final long bgnTime = System.currentTimeMillis();
+            final String resultStr = solution(array[i]);
+            final long elapsedTime = System.currentTimeMillis() - bgnTime;
 
-        System.out.println("Result : " + resultStr);
-        System.out.println("ElapsedTime : " + elapsedTime + "ms");
+            System.out.println("Result : " + resultStr);
+            System.out.println("ElapsedTime : " + elapsedTime + "ms");
+        }
     }
 }
