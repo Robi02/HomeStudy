@@ -19,7 +19,7 @@
 import java.util.HashSet;
 import java.util.Set;
 
-public class DFSnBFSLv2_002 { 미해결
+public class DFSnBFSLv3_002 { 미해결
 
     public int recursive(int[][] computers, int comIdx, int netIdx, int[] netGrpAry, int netGrpCnt) {
         if (comIdx == netIdx) {
@@ -65,7 +65,7 @@ public class DFSnBFSLv2_002 { 미해결
 
     public static void main(String[] args) {
         // ================================================================
-        final DFSnBFSLv2_002 solution = new DFSnBFSLv2_002();
+        final DFSnBFSLv3_002 solution = new DFSnBFSLv3_002();
         final int n = 3;
         final int[][] computers = { {1, 1, 0}, {1, 1, 0}, {0, 0, 1} };
         //final int[][] computers = { {1, 1, 0}, {1, 1, 1}, {0, 1, 1} };
