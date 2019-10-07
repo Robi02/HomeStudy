@@ -30,10 +30,6 @@ import java.util.Stack;
 
 public class DFSnBFSLv3_004 {
 
-    public boolean condition(String[] destination1, String[] destination2) {
-        return destination1[1].equals(destination2[0]);
-    }
-
     public String[] solution(String[][] tickets) {
         Arrays.sort(tickets, new Comparator<String[]>() {
             @Override
@@ -61,36 +57,52 @@ public class DFSnBFSLv3_004 {
 
         List<String> answerList = new ArrayList<String>();
 
-        recursive(1, tickets.length, 0, tickets, answerList);
+        for (int i = 0; i < tickets.length; ++i) {
+            if (answerList.isEmpty()) {
+                String[] firstTicket = tickets[i];
+                if (firstTicket[0].equals("ICN")) {
+                    recursive(1, firstTicket, tickets, answerList);
+                }
+                else {
+                    break;
+                }
+            }
+        }
 
         return answerList.toArray(new String[0]);
     }
 
-    public boolean recursive(int depth, int maxDepth, int lastStkIdx, String[][] tickets, List<String> answerList) {
-        if (depth >= maxDepth) {
-            return false;
+    public void recursive(int depth, String[] lastTicket, String[][] tickets, List<String> answerList) {
+        if (depth == tickets.length - 1) {
+            boolean pathComplete = true;
+            for (int i = 0; i < tickets.length; ++i) {
+                if (tickets[i] != null) {
+                    pathComplete = false;
+                    break;
+                }
+            }
+            if (pathComplete) {
+                answerList.add(lastTicket[1]);
+            }
+            return;
         }
 
-        for (int i = lastStkIdx + 1; i < tickets.length; ++i) {
-            if (condition(tickets[lastStkIdx], tickets[i])) {
-                answerList.add(tickets[i][0]);
-                
-                if (recursive(depth + 1, maxDepth, i, tickets, answerList)) {
-                    return true;
-                }
-
-                answerList.remove(answerList.size() - 1);
+        for (int i = 0; i < tickets.length; ++i) {
+            String[] ticket = tickets[i];
+            if (ticket == null) continue;
+            else if (lastTicket[1].equals(ticket[0])) {
+                tickets[i] = null;
+                recursive(depth + 1, ticket, tickets, answerList);
+                tickets[i] = ticket;
             }
         }
-
-        eturn true; // 나중에...
     }
     
     public static void main(String[] args) {
         // ================================================================
         final DFSnBFSLv3_004 solution = new DFSnBFSLv3_004();
-        // final String[][] tickets = { {"ICN","JFK"}, {"HND","IAD"}, {"JFK","HND"} };
-        final String[][] tickets = { {"ICN","SFO"}, {"ICN","ATL"}, {"SFO","ATL"}, {"ATL","ICN"}, {"ATL","SFO"} };
+        final String[][] tickets = { {"ICN","JFK"}, {"HND","IAD"}, {"JFK","HND"} };
+        // final String[][] tickets = { {"ICN","SFO"}, {"ICN","ATL"}, {"SFO","ATL"}, {"ATL","ICN"}, {"ATL","SFO"} };
         // ================================================================
         final long bgnTime = System.currentTimeMillis();
         final String[] result = solution.solution(tickets);

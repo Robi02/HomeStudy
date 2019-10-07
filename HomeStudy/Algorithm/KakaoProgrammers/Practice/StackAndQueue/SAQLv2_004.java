@@ -1,11 +1,10 @@
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Deque;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.stream.Collectors;
 
 /**
  * - 문제 설명 트럭 여러 대가 강을 가로지르는 일 차선 다리를 정해진 순으로 건너려 합니다. 모든 트럭이 다리를 건너려면 최소 몇 초가
@@ -18,67 +17,86 @@ import java.util.stream.Collectors;
  * truck_weights의 길이는 1 이상 10,000 이하입니다. 모든 트럭의 무게는 1 이상 weight 이하입니다.
  *
  */
-not solved
+
 public class SAQLv2_004 {
 
     public static class Truck {
+        public int pos;
         public int weight;
-        public int position;
-
-        public Truck(int weight, int position) {
+        public void moveTruck() {
+            this.pos += 1;
+        }
+        public Truck(int pos, int weight) {
+            this.pos = pos;
             this.weight = weight;
-            this.position = position;
         }
     }
 
     public int solution(int bridge_length, int weight, int[] truck_weights) {
-        int rtTotalTime = 0;
-
-        // 1. 트럭 무게를 오름차순으로 정렬
+        // 트럭을 오름차순 무게로 정렬하여 덱에 넣음
         Arrays.sort(truck_weights);
+        Deque<Integer> dq = new ArrayDeque<Integer>();
 
-        // 2. 트럭을 가장 가벼운 + 무거운 무게의 트럭을 다리의 한계치까지 보내서 평균적인 균형을 맞춰 보냄
-        Deque<Truck> remainingTruckQueue = new ArrayDeque<Truck>(truck_weights.length);
-        
         for (int i = 0; i < truck_weights.length; ++i) {
-            remainingTruckQueue.push(new Truck(truck_weights[i], -1));
+            dq.addLast(truck_weights[i]);
         }
-        List<Truck> truckOnBridgeList = new LinkedList<Truck>();
-        int totalWeightOnBridge = 0;
 
-        while (remainingTruckQueue.size() > 0 || truckOnBridgeList.size() > 0) {
-            // add
-            if (remainingTruckQueue.size() > 0 && totalWeightOnBridge < weight) {
-                Truck newTruck = remainingTruckQueue.removeFirst();
-                int weightAfterAdd = newTruck.weight + totalWeightOnBridge;
+        // 다리에 적재 시작
+        int totalTime = 0;
+        List<Truck> bridgeList = new ArrayList<Truck>();
+        int totalWeight = 0;
+        boolean isHeadTurn = true;
 
-                if (weightAfterAdd <= weight) {
-                    truckOnBridgeList.add(newTruck);
-                    totalWeightOnBridge = weightAfterAdd;
+        while (!dq.isEmpty() || !bridgeList.isEmpty()) {
+            if (!dq.isEmpty()) {
+                Integer newTruckWeigth = isHeadTurn ? dq.peekFirst() : dq.peekLast();
+                int afterWeight = totalWeight + newTruckWeigth;
+
+                if (afterWeight <= weight) { // 다리에 아직 적재 가능한 경우
+                    // 트럭 충돌 확인
+                    boolean loadAble = true;
+                    if (!bridgeList.isEmpty()) {
+                        if (bridgeList.get(0).pos == 0) {
+                            loadAble = false;
+                        }
+                    }
+                    // 새 트럭 적재
+                    if (loadAble) {
+                        Truck newTruck = new Truck(0, (isHeadTurn ? dq.removeFirst() : dq.removeLast()));
+                        bridgeList.add(newTruck);
+                        totalWeight = afterWeight;
+                    }
+                }
+
+                isHeadTurn = !isHeadTurn;
+            }
+
+            if (!bridgeList.isEmpty()) {
+                // 다리위의 트럭 이동
+                for (int i = 0; i < bridgeList.size(); ++i) {
+                    Truck updateTruck = bridgeList.get(i);
+                    updateTruck.moveTruck();
+                }
+
+                // 다리를 벗어나는 트럭
+                if (bridgeList.get(0).pos > bridge_length) {
+                    totalWeight -= bridgeList.remove(0).weight;
                 }
             }
 
-            // update truck
-            if (truckOnBridgeList.size() > 0) {
-                for (Truck truck : truckOnBridgeList) {
-                    ++truck.position;
-                }
-
-                Truck firstTruck = truckOnBridgeList.get(0);
-            }
+            ++totalTime;
         }
 
-        rtTotalTime += (truckOnBridgeList.size() * (bridge_length + 1));
-        
-        return rtTotalTime;
+        return totalTime;
     }
 
     public static void main(String[] args) {
         // ================================================================
         final SAQLv2_004 solution = new SAQLv2_004();
-        final int bridge_length = 100;
-        final int weight = 100;
-        final int[] truck_weights = { 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 }; // reuslt: 110
+        final int bridge_length = 2;
+        final int weight = 10;
+        final int[] truck_weights = { 7, 4, 5, 6 }; // reuslt: 8
+        //final int[] truck_weights = { 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 }; // reuslt: 110
         // ================================================================
         final long bgnTime = System.currentTimeMillis();
         final int result = solution.solution(bridge_length, weight, truck_weights);

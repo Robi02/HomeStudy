@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - SAQLv2_004",
+            "request": "launch",
+            "mainClass": "SAQLv2_004",
+            "projectName": "Practice_78d49088"
+        }
+    ]
+}

@@ -16,51 +16,33 @@
  * 
 */
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
-public class DFSnBFSLv3_002 { 미해결
+public class DFSnBFSLv3_002 { 
 
-    public int recursive(int[][] computers, int comIdx, int netIdx, int[] netGrpAry, int netGrpCnt) {
-        if (comIdx == netIdx) {
-            // 자기자신
-            return 0;
+    public void recursive(int[][] computers, int com, int net, int[] netGrp, int[] netGrpId) {
+        for (int n = com; n < computers[com].length; ++n) {
+            if (com == n) continue;
+            if (computers[com][n] == 1 && com > n) { // com > n : prevent INF loop
+                netGrp[com] = netGrpId[0];
+                recursive(computers, n, com, netGrp, netGrpId);
+            }
         }
-
-        boolean isFirstConn = false;
-
-        if (netGrpAry[comIdx] == 0) {
-            // 처음으로 연결된 컴퓨터
-            netGrpAry[comIdx] = netGrpCnt;
-            isFirstConn = true;
-        }
-        else if (netGrpAry[comIdx] == netGrpCnt) {
-            // 이미 연결된 컴퓨터
-            return netGrpCnt;
-        }
-
-        int[] connCom = computers[netIdx];
-
-        for (int connComNetIdx = 0; connComNetIdx < connCom.length; ++connComNetIdx) {
-            recursive(computers, netIdx, connComNetIdx, netGrpAry, netGrpCnt);
-        }
-
-        return (isFirstConn ? netGrpCnt + 1 : netGrpCnt);
     }
 
     public int solution(int n, int[][] computers) {
-        int[] netGrpAry = new int[computers.length];
-        int netGrpCnt = 1;
-
-        for (int comIdx = 0; comIdx < computers.length; ++comIdx) {
-            int[] computer = computers[comIdx];
-
-            for (int netIdx = 0; netIdx < computer.length; ++netIdx) {
-                netGrpCnt += recursive(computers, comIdx, netIdx, netGrpAry, netGrpCnt);
+        int[] netGrp = new int[computers.length];
+        int[] netGrpId = new int[] { 1 };
+        
+        for (int com = 0; com < computers.length; ++com) {
+            for (int net = 0; net < computers[com].length; ++net) {
+                recursive(computers, net, com, netGrp, netGrpId);
             }
         }
 
-        return netGrpCnt;
+        System.out.println(Arrays.toString(netGrp));
+
+        return 0;
     }
 
     public static void main(String[] args) {
