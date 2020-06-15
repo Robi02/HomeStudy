@@ -90,7 +90,7 @@ public class Item45 {
                 catch (IOException e) {}
             }
 
-            // [3] 둘 사이의 절충지점 - 깔금하고 명료해진다!
+            // [3] 둘 사이의 절충지점 - 깔끔하고 명료해진다!
             {
                 Path dictionary = Paths.get(args[0]);
                 int minGroupSize = Integer.parseInt(args[1]);
