@@ -19,7 +19,7 @@ public class JpaMain {
         try {
             tx.begin();
 
-            Member member = new Member();
+            MemberOld member = new MemberOld();
             member.setId(102L);
             member.setName("HelloJPA");
 
@@ -29,23 +29,23 @@ public class JpaMain {
             // System.out.println("=== AFTER PERSIST ===");
 
             // EntityManager 1차 캐시에서 조회 -> 캐시에 없으면, DB에서 조회
-            Member findMemberA = em.find(Member.class, 1L);
-            Member findMemberB = em.find(Member.class, 1L);
+            MemberOld findMemberOldA = em.find(MemberOld.class, 1L);
+            MemberOld findMemberOldB = em.find(MemberOld.class, 1L);
 
             // 1차 캐시는 "한 트랜잭션 사이의 데이터"를 캐싱하는데,
             // 아주 복잡한 비즈니스로직의 쿼리인 경우 이득을 볼 수 있다.
             // 위 find()를 테스트하면, DB로 1회만 select하는것을 확인할 수 있음.
 
-            System.out.println("findMemberA.id = " + findMemberA.getId());
-            System.out.println("findMemberA.name = " + findMemberA.getName());
-            System.out.println("findMemberB.id = " + findMemberB.getId());
-            System.out.println("findMemberB.name = " + findMemberB.getName());
+            System.out.println("findMemberOldA.id = " + findMemberOldA.getId());
+            System.out.println("findMemberOldA.name = " + findMemberOldA.getName());
+            System.out.println("findMemberOldB.id = " + findMemberOldB.getId());
+            System.out.println("findMemberOldB.name = " + findMemberOldB.getName());
 
             // 놀랍게도 A == B 의 결과가 true이다.
             // 따라서, 1차 캐시에서 생성된 같은 객체를 참조하는것을 확인할 수 있다.
             // 1차 캐시를 사용하면 반복 가능한 읽기(REPETABLE READ)등급의
             // 트랜잭션 격리 수준을 DB가 아닌 애플리케이션 차원에서 제공한다.
-            System.out.println("Is A == B ? : " + (findMemberA == findMemberB));
+            System.out.println("Is A == B ? : " + (findMemberOldA == findMemberOldB));
             
             tx.commit();
         }
@@ -65,8 +65,13 @@ public class JpaMain {
         try {
             tx.begin();
 
-            Member member1 = new Member(150L, "A");
-            Member member2 = new Member(160L, "B");
+            MemberOld member1 = new MemberOld();
+            MemberOld member2 = new MemberOld();
+
+            member1.setId(150L);
+            member1.setName("A");
+            member2.setId(160L);
+            member2.setName("B");
 
             System.out.println("=== persist begin ===");
             em.persist(member1); // 이 시점에는 EntityManager의 1차 캐시에 추가되면서
@@ -96,7 +101,7 @@ public class JpaMain {
         try {
             tx.begin();
 
-            Member member = em.find(Member.class, 150L);
+            MemberOld member = em.find(MemberOld.class, 150L);
             member.setName("testD");
             // em.flush() 메서드로 commit전에 강제로 쿼리 전송도 가능하다.
 
@@ -131,12 +136,12 @@ public class JpaMain {
         try {
             tx.begin();
             
-            Member member = em.find(Member.class, 150L);
+            MemberOld member = em.find(MemberOld.class, 150L);
             em.clear();
             // 영속성 컨텍스트를 초기화하여 캐시가 사라졌으므로,
             // 아래 find문에서도 DB로 select쿼리를 날린다.
 
-            member = em.find(Member.class, 150L);
+            member = em.find(MemberOld.class, 150L);
             member.setName("testE");
             
             em.detach(member);
@@ -153,15 +158,69 @@ public class JpaMain {
         }
     }
 
+    /**
+     * 엔티티 매핑
+     */
+    public static void testF() {
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        
+        try {
+            tx.begin();
+            
+            MemberOld member = new MemberOld();
+
+            member.setId(1L);
+            member.setName("UserA");
+            member.setAge(0);
+            member.setRoleType(RoleType.ADMIN);
+
+            em.persist(member);
+            tx.commit();
+        }
+        catch (Exception e) {
+            tx.rollback();
+            log.error("{}", e);
+        }
+        finally {
+            em.close();
+        }
+    }
+
+    /**
+     * 키 매핑
+     */
+    public static void testG() {
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        
+        try {
+            tx.begin();
+            
+
+            
+            tx.commit();
+        }
+        catch (Exception e) {
+            tx.rollback();
+            log.error("{}", e);
+        }
+        finally {
+            em.close();
+        }
+    }
+
     public static void main( String[] args ) {
-        System.out.println("Begin");
+        System.out.println("Begin!");
         
         //testB();
         //testC();
         //testD();
-        testE();
+        //testE();
+        //testF();
+        testG();
 
         emf.close(); // When JVM terminated...
-        System.out.println("End");
+        System.out.println("End!");
     }  
 }
