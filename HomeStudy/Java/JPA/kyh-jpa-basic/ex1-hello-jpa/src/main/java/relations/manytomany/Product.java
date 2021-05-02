@@ -1,4 +1,4 @@
-package relations;
+package relations.manytomany;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +7,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,15 +16,14 @@ import lombok.Setter;
 
 @Getter @Setter @NoArgsConstructor
 @Entity
-public class Team {
+public class Product {
     
     @Id @GeneratedValue
-    @Column(name = "TEAM_ID")
+    @Column(name = "PRODUCT_ID")
     private Long id;
 
-    @Column(name = "NAME")
     private String name;
 
-    @OneToMany(mappedBy = "team")
+    @ManyToMany(mappedBy = "products")
     private List<Member> members = new ArrayList<Member>();
 }

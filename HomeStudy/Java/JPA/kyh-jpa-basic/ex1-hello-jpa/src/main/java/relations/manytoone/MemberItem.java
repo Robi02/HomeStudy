@@ -1,4 +1,4 @@
-package jpabook.jpashop.domain;
+package relations.manytoone;
 
 import java.time.LocalDateTime;
 
@@ -10,7 +10,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,8 +17,7 @@ import lombok.Setter;
 
 @Getter @Setter @NoArgsConstructor
 @Entity
-@Table(name = "ORDERS")
-public class Order {
+public class MemberItem {
     
     @Id @GeneratedValue
     @Column(name = "ORDER_ID")
@@ -30,10 +28,10 @@ public class Order {
     private Member member;
 
     @ManyToOne
-    @JoinColumn(name = "DELIVERY_ID")
-    private Delivery delivery;
+    @JoinColumn(name = "ITEM_ID")
+    private ItemOld item;
 
-    private LocalDateTime orderDate;
+    private LocalDateTime dealDate;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;

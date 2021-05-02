@@ -6,6 +6,10 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 
 import lombok.extern.slf4j.Slf4j;
+import relations.manytomany.Many2Many;
+import relations.manytoone.Many2One;
+import relations.onetomany.Member;
+import relations.onetomany.Team;
 
 @Slf4j
 public class JpaMain {
@@ -76,9 +80,27 @@ public class JpaMain {
     }
 
     public static void main(String[] args) {
-        log.info("Begin!");
-        logicA();
+        log.info("+ Begin! +");
+        
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction tx = em.getTransaction();
+
+        try {
+            tx.begin();
+
+            // Many2One.work(em);
+            Many2Many.work(em);
+
+            tx.commit();
+        }
+        catch (Exception e) {
+            tx.rollback();
+        }
+        finally {
+            em.close();
+        }
+
         emf.close();
-        log.info("Complete!");
+        log.info("+ Complete! +");
     }
 }

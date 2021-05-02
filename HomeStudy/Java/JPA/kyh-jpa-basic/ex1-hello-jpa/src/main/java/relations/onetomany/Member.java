@@ -1,4 +1,4 @@
-package relations;
+package relations.onetomany;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

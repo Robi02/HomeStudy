@@ -1,0 +1,72 @@
+2021-05-02 14:45:54 jdbc[12]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT [*]"; expected "TOP, LIMIT, DISTINCT, ALL, *, NOT, EXISTS, INTERSECTS"; SQL statement:
+show all tables [42001-199]
+2021-05-02 16:17:37 jdbc[15]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT [*]"; expected "TOP, LIMIT, DISTINCT, ALL, *, NOT, EXISTS, INTERSECTS"; SQL statement:
+show all tables [42001-199]
+2021-05-02 17:32:03 jdbc[38]: null
+org.h2.message.DbException: The connection was not closed by the application and is garbage collected [90018-199]
+	at org.h2.message.DbException.get(DbException.java:205)
+	at org.h2.message.DbException.get(DbException.java:181)
+	at org.h2.message.DbException.get(DbException.java:170)
+	at org.h2.jdbc.JdbcConnection.closeOld(JdbcConnection.java:242)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:182)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:148)
+	at org.h2.Driver.connect(Driver.java:69)
+	at org.h2.util.JdbcUtils.getConnection(JdbcUtils.java:299)
+	at org.h2.server.web.WebServer.getConnection(WebServer.java:782)
+	at org.h2.server.web.WebApp.login(WebApp.java:1004)
+	at org.h2.server.web.WebApp.process(WebApp.java:219)
+	at org.h2.server.web.WebApp.processRequest(WebApp.java:169)
+	at org.h2.server.web.WebThread.process(WebThread.java:139)
+	at org.h2.server.web.WebThread.run(WebThread.java:93)
+	at java.base/java.lang.Thread.run(Thread.java:829)
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: The connection was not closed by the application and is garbage collected [90018-199]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:617)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:427)
+	... 15 more
+2021-05-02 17:32:03 jdbc[38]: null
+org.h2.message.DbException: The connection was not closed by the application and is garbage collected [90018-199]
+	at org.h2.message.DbException.get(DbException.java:205)
+	at org.h2.message.DbException.get(DbException.java:181)
+	at org.h2.message.DbException.get(DbException.java:170)
+	at org.h2.jdbc.JdbcConnection.closeOld(JdbcConnection.java:242)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:182)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:148)
+	at org.h2.Driver.connect(Driver.java:69)
+	at org.h2.util.JdbcUtils.getConnection(JdbcUtils.java:299)
+	at org.h2.server.web.WebServer.getConnection(WebServer.java:782)
+	at org.h2.server.web.WebApp.login(WebApp.java:1004)
+	at org.h2.server.web.WebApp.process(WebApp.java:219)
+	at org.h2.server.web.WebApp.processRequest(WebApp.java:169)
+	at org.h2.server.web.WebThread.process(WebThread.java:139)
+	at org.h2.server.web.WebThread.run(WebThread.java:93)
+	at java.base/java.lang.Thread.run(Thread.java:829)
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: The connection was not closed by the application and is garbage collected [90018-199]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:617)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:427)
+	... 15 more
+2021-05-02 17:32:03 jdbc[38]: null
+org.h2.message.DbException: The connection was not closed by the application and is garbage collected [90018-199]
+	at org.h2.message.DbException.get(DbException.java:205)
+	at org.h2.message.DbException.get(DbException.java:181)
+	at org.h2.message.DbException.get(DbException.java:170)
+	at org.h2.jdbc.JdbcConnection.closeOld(JdbcConnection.java:242)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:182)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:148)
+	at org.h2.Driver.connect(Driver.java:69)
+	at org.h2.util.JdbcUtils.getConnection(JdbcUtils.java:299)
+	at org.h2.server.web.WebServer.getConnection(WebServer.java:782)
+	at org.h2.server.web.WebApp.login(WebApp.java:1004)
+	at org.h2.server.web.WebApp.process(WebApp.java:219)
+	at org.h2.server.web.WebApp.processRequest(WebApp.java:169)
+	at org.h2.server.web.WebThread.process(WebThread.java:139)
+	at org.h2.server.web.WebThread.run(WebThread.java:93)
+	at java.base/java.lang.Thread.run(Thread.java:829)
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: The connection was not closed by the application and is garbage collected [90018-199]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:617)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:427)
+	... 15 more
+2021-05-02 17:33:18 jdbc[38]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT * FROM [*]"; expected "identifier"; SQL statement:
+select * from [42001-199]
