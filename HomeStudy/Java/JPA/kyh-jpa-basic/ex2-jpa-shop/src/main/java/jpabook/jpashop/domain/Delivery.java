@@ -13,7 +13,7 @@ import lombok.Setter;
 
 @Getter @Setter @NoArgsConstructor
 @Entity
-public class Delivery {
+public class Delivery extends BaseEntity {
     
     @Id @GeneratedValue
     private Long id;
