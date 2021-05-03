@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<persistence version="2.2" 
+             xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd"> 
+ 
+    <persistence-unit name="hello"> 
+        <properties> 
+            <!-- 필수 속성 --> 
+            <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/> 
+            <property name="javax.persistence.jdbc.user" value="sa"/> 
+            <property name="javax.persistence.jdbc.password" value=""/> 
+            <property name="javax.persistence.jdbc.url" value="jdbc:h2:tcp://localhost/D:/dev/h2/test"/> <!-- Windows -->
+            <!--<property name="javax.persistence.jdbc.url" value="jdbc:h2:tcp://localhost/~/desktop/Study/HomeStudy/JPA/h2/test"/>--> <!-- Linux -->
+            <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
+            
+            <!-- 옵션 --> 
+            <property name="hibernate.show_sql" value="true"/> 
+            <property name="hibernate.format_sql" value="true"/> 
+            <property name="hibernate.use_sql_comments" value="true"/> 
+            <property name="hibernate.jdbc.batch_size" value="10"/>
+            <property name="hibernate.hbm2ddl.auto" value="create"/>
+            <!-- hibernate.hbm2ddl.auto : DDL로 스키마의 생성을 JPA에서 관리(개발환경에서 사용 권장) -->
+            <!-- 1) create: 테이블 존재 시 drop후 재생성(운영에서 절대 사용하지 말 것) -->
+            <!-- 2) create-drop: 종료시점에 테이블 삭제(운영에서 절대 사용하지 말 것) -->
+            <!-- 3) update: 변경된 것(alter table수행 )만 적용(운영에서 절대 사용하지 말 것) -->
+            <!-- 4) validate: 엔티티-테이블이 정상 매핑되었는지 확인용으로 사용(테스트와 운영에서 제한적으로 사용 가능) -->
+            <!-- 5) none: 사용하지 않음 -->
+        </properties> 
+    </persistence-unit> 
+</persistence> 

@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - GreedyLv3_001",
+            "request": "launch",
+            "mainClass": "GreedyLv3_001",
+            "projectName": "Greedy_bf6c2427"
+        }
+    ]
+}

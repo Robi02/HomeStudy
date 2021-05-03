@@ -1,0 +1,32 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - Q6",
+            "request": "launch",
+            "mainClass": "Q6",
+            "projectName": "NetmarbleTest_4e97ede9"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - Q5",
+            "request": "launch",
+            "mainClass": "Q5",
+            "projectName": "NetmarbleTest_4e97ede9"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - Q4",
+            "request": "launch",
+            "mainClass": "Q4",
+            "projectName": "NetmarbleTest_4e97ede9"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - Q1",
+            "request": "launch",
+            "mainClass": "Q1",
+            "projectName": "NetmarbleTest_4e97ede9"
+        }
+    ]
+}
