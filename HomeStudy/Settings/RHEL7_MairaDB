@@ -1,0 +1,74 @@
+[ (Un)install MariaDB - RHEL6~7 ]
+ - Refference
+  (1) https://stackoverflow.com/questions/33362904/completely-remove-mariadb-or-mysql-from-centos-7-or-rhel-7
+
+1) These steps are working on CentOS 6.5 so they should work on CentOS 7 too:
+ 1. # yum remove mariadb mariadb-server
+ 2. # rm -rf /var/lib/mysql If your datadir in /etc/my.cnf points to a different directory, remove that directory instead of /var/lib/mysql
+ 3. # rm /etc/my.cnf
+ 4. Optional step: # rm ~/.my.cnf
+ 5. # yum install mariadb mariadb-server
+
+2) [EDIT] - Update for MariaDB 10.1 on CentOS 7
+ The steps above worked for CentOS 6.5 and MariaDB 10.
+ I've just installed MariaDB 10.1 on CentOS 7 and some of the steps are slightly different.
+ Step 1 would become:
+    # yum remove MariaDB-server MariaDB-client
+ Step 5 would become:
+    # yum install MariaDB-server MariaDB-client
+ The other steps remain the same.
+
+
+
+[ MariaDB Secure Installation ]
+ - Refference
+  (1) https://jdm.kr/blog/132
+
+  1) # mysql_secure_installation
+     ...
+     ...
+
+  2) # mysql -u root -p
+    (1) create database 'db_name';
+    (2) create user 'user_name'@'access_ip' identified by 'password';
+    (3) grant all privileges on 'db_name.*' to 'user_name'@'access_ip'; flush privileges;
+    (4) select host, user from mysql.user; // Show MariaDB's all user.
+
+
+
+[ Change Charset to UTF-8 ] 
+ - Refferences
+  (1) https://serverfault.com/questions/346647/mysql-wheres-the-my-cnf-path/775553
+  (2) https://elfinlas.github.io/2018/03/17/mariadb-chage-charset/
+
+ 1) Check MariaDB my.cnf file directory.
+    # mysql --help | grep "Default options" -A 1 
+    =>
+    Default options are read from the following files in the given order: 
+    /etc/my.cnf /etc/mysql/my.cnf /usr/etc/my.cnf ~/.my.cnf 
+
+ 2) Make directory and file 'my.cnf'
+
+ 3) Write 'my.cnf' file like below...
+    +------------------------------------------------+
+    |[mysqld]                                        |
+    |collation-server = utf8_unicode_ci              |
+    |init-connect='SET NAMES utf8'                   |
+    |character-set-server = utf8                     |
+    |                                                |
+    |[client]                                        |
+    |port=3306                                       |
+    |default-character-set = utf8                    |
+    |                                                |
+    |[mysqldump]                                     |
+    |default-character-set = utf8                    |
+    |                                                |
+    |[mysql]                                         |
+    |default-character-set = utf8                    |
+    +------------------------------------------------+
+ 
+ 4) Check setting
+    (1) mysql -u root -p
+    (2) show variables like 'char%';
+
+
