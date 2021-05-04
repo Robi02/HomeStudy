@@ -1,7 +1,0 @@
-# << 전체 시스템을 위한 Config File >>
-TEMPS_IP_ADDRESS=192.168.100.100
-TEMPS_MSG_QUEUE_KEY=9999
-
-# Trace를 위한 세팅 테스트를 위해서만 TRACE=ON할 것!
-TRACE=ON
-LOG_LEVEL=1
