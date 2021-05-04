@@ -14,16 +14,15 @@ import lombok.Setter;
 
 @Getter @Setter @NoArgsConstructor
 @Entity
-public class Member {
+public class Child {
     
     @Id @GeneratedValue
-    @Column(name = "MEMBER_ID")
+    @Column(name = "CHILD_ID")
     private Long id;
 
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    // @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "TEAM_ID")
-    private Team team;
+    @JoinColumn(name = "PARENT_ID")
+    private Parent parent;
 }
