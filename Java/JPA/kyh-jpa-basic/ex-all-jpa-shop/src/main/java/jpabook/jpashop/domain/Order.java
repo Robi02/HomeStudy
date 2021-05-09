@@ -6,8 +6,10 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import lombok.Getter;
@@ -27,6 +29,9 @@ public class Order {
     private Long memberId;
 
     private LocalDateTime orderDate;
+
+    @OneToOne(mappedBy = "order", fetch = FetchType.LAZY)
+    private Delivery delivery;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;

@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class JpaMain {
 
-    private static final EntityManagerFactory emf = Persistence.createEntityManagerFactory("jpa-shop");
+    private static final EntityManagerFactory emf = Persistence.createEntityManagerFactory("hello");
     
     /**
      * 

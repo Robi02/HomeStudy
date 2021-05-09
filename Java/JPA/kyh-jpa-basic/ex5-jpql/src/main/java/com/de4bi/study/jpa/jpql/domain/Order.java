@@ -1,26 +1,31 @@
-package jpabook.jpashop.domain;
+package com.de4bi.study.jpa.jpql.domain;
 
-import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter @Setter @NoArgsConstructor
+@Table(name = "ORDERS")
 @Entity
-public class Member {
+public class Order {
     
-    @Id @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "MEMBER_ID")
+    @Id @GeneratedValue
     private Long id;
 
-    private String name;
+    private int orderAmount;
 
     @Embedded
     private Address address;
+
+    @ManyToOne
+    @JoinColumn(name = "PRODUCT_ID")
+    private Product product;
 }

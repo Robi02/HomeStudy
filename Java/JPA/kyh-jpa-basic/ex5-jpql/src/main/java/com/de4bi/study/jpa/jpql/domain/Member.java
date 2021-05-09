@@ -1,11 +1,10 @@
-package jpabook.jpashop.domain;
+package com.de4bi.study.jpa.jpql.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,12 +14,14 @@ import lombok.Setter;
 @Entity
 public class Member {
     
-    @Id @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "MEMBER_ID")
+    @Id @GeneratedValue
     private Long id;
 
     private String name;
 
-    @Embedded
-    private Address address;
+    private int age;
+
+    @ManyToOne
+    @JoinColumn(name = "TEAM_ID")
+    private Team team;
 }
