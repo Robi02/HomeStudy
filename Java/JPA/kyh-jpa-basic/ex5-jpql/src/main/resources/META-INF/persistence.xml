@@ -12,6 +12,7 @@
             <property name="javax.persistence.jdbc.url" value="jdbc:h2:tcp://localhost/D:/dev/h2/db/test"/><!-- Windows -->
             <!--<property name="javax.persistence.jdbc.url" value="jdbc:h2:tcp://localhost/~/desktop/Study/h2/db/test"/>--><!-- Linux -->
             <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
+            <!--<property name="hibernate.dialect" value="com.de4bi.study.jpa.jpql.JpaMain$MyH2Dialect"/>--> <!-- 사용자 정의 방언 사용 -->
             
             <!-- 옵션 --> 
             <property name="hibernate.show_sql" value="true"/> 

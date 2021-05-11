@@ -7,6 +7,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
+import javax.persistence.OrderColumn;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -16,9 +17,14 @@ import javax.persistence.criteria.Root;
 
 import com.de4bi.study.jpa.jpql.domain.Address;
 import com.de4bi.study.jpa.jpql.domain.Member;
+import com.de4bi.study.jpa.jpql.domain.MemberType;
 import com.de4bi.study.jpa.jpql.domain.Order;
 import com.de4bi.study.jpa.jpql.domain.Product;
 import com.de4bi.study.jpa.jpql.domain.Team;
+
+import org.hibernate.dialect.H2Dialect;
+import org.hibernate.dialect.function.StandardSQLFunction;
+import org.hibernate.type.StandardBasicTypes;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -257,11 +263,178 @@ public class JpaMain {
     }
 
     /**
-     *
+     * JPQL 타입 표현.
      */
     public static void test7(EntityManager em) {
+        
+        Member member = new Member();
+        member.setName("M1");
+        member.setType(MemberType.USER);
+        member.setAge(10);
+        em.persist(member);
+        em.flush();
+        em.clear();
 
+        // String 'HELLO', Boolean 'TRUE', Enum 'm.type'
+        String query1 = "select m.name, m.type, 'HELLO', TRUE From Member m " +
+                        "where m.type = :type"; // 또는 풀 패키지명 (com.de4bi.study.jpa.jpql.domain.MemberType.USER)
+        List<Object[]> result1 = em.createQuery(query1, Object[].class)
+            .setParameter("type", MemberType.USER)
+            .getResultList();
 
+        for (Object[] obj : result1) {
+            log.info("obj[0] = " + obj[0]);
+            log.info("obj[1] = " + obj[1]);
+            log.info("obj[2] = " + obj[2]);
+            log.info("obj[3] = " + obj[3]);
+        }
+    }
+
+    /**
+     * 조건식.
+     */
+    public static void test8(EntityManager em) {
+        // 테스트 초기화
+        for (int i = 0; i < 10; ++i) {
+            Member member = new Member();
+            member.setName((i == 5 ? null : ("M" + i)));
+            member.setType(MemberType.USER);
+            member.setAge(i + 10);
+            em.persist(member);
+        }
+        em.flush();
+        em.clear();
+
+        // case, when-then, else 구문
+        String query1 = "select case when m.age <= 10 then '어린이 요금' " +
+                                    "when m.age >= 20 then '학생 요금' " +
+                                    "else '일반요금' " +
+                                "end " +
+                        "from Member m";
+        List<String> result1 = em.createQuery(query1, String.class).getResultList();
+
+        for (String str : result1) {
+            log.info("str : " + str);
+        }
+        log.info("================================");
+
+        // COALESCE, NULLIF구문
+        // 1) COALESCE: 하나씩 조회해서 null이 아니면 반환.
+        // 2) NULLIF: 두 값이 같으면 null, 다르면 첫 번째 값 반환.
+        String query2 = "select coalesce(m.name, '이름 없는 회원') as name1, " +
+                        "NULLIF(m.name, 'M0') as name2 from Member m";
+        List<Object[]> result2 = em.createQuery(query2, Object[].class).getResultList();
+
+        for (Object[] str : result2) {
+            log.info("str[0] : " + str[0] + " / str[1] : " + str[1]);
+        }
+    }
+
+    /**
+     * JPQL 기본 함수/사용자 정의 함수.
+     */
+    public static void test9(EntityManager em) {
+        // 테스트 초기화
+        Team team = new Team();
+        team.setName("T0");
+        em.persist(team);
+
+        for (int i = 0; i < 10; ++i) {
+            Member member = new Member();
+            member.setName("M" + i);
+            member.setType(i % 2 == 0 ? MemberType.USER : MemberType.ADMIN);
+            member.setAge(i + 10);
+            member.setTeam(i % 2 == 0 ? team : null);
+            em.persist(member);
+        }
+        em.flush();
+        em.clear();
+
+        // 1. || : 문자열 연결
+        String query1 =
+            "select 'a' || 'b' from Member m where m.id = 1";
+        List<String> result1= em.createQuery(query1, String.class).getResultList();
+
+        log.info("<=== t1 ===>");
+        for (String str : result1) {
+            log.info("str = " + str);
+        }
+        log.info("</=== t1 ===>");
+
+        // 2. concat : 문자열 연결
+        String query2 =
+        "select concat('c', 'd') from Member m where m.id = 1";
+        List<String> result2= em.createQuery(query2, String.class).getResultList();
+
+        log.info("<=== t2 ===>");
+        for (String str : result2) {
+            log.info("str = " + str);
+        }
+        log.info("</=== t2 ===>");
+
+        // 3. substring : 문자열 자르기
+        String query3 =
+        "select substring(m.name, 2, 1) from Member m where m.id = 1";
+        List<String> result3= em.createQuery(query3, String.class).getResultList();
+
+        log.info("<=== t3 ===>");
+        for (String str : result3) {
+            log.info("str = " + str); // str = 0 이 출력됨 (subsstring(m.name, 2, 1)) -> 2번째부터, 1글자
+        }
+        log.info("</=== t3 ===>");
+
+        // 4. trim : 양쪽 공백 제거 (생략)
+        // 5. lower, upper : 대소문자로 치환 (생략)
+        // 6. length : 문자열의 길이 (생략)
+        
+        // 7. locate : 부분문자열의 위치를 출력
+        String query4 =
+            "select locate('de', 'abcdefg') from Member m where m.id = 1";
+        List<Integer> result4= em.createQuery(query4, Integer.class).getResultList();
+
+        log.info("<=== t4 ===>");
+        for (Integer integer : result4) {
+            log.info("integer = " + integer); // 4 출력 (abc'de'fg -> 4번째 위치)
+        }
+        log.info("</=== t4 ===>");
+        
+        // 8. abs, sqrt, mod : 딱봐도 수학 함수 (생략)
+
+        // 9. size, index : 컬랙션의 크기, (JPA용도)
+        String query5 =
+            "select size(t.members) from Team t where t.id = 1";
+        List<Integer> result5= em.createQuery(query5, Integer.class).getResultList();
+
+        log.info("<=== t5 ===>");
+        for (Integer integer : result5) {
+            log.info("integer = " + integer); // 컬랙션의 크기 반환
+        }
+        log.info("</=== t5 ===>");
+
+        // index -> 값 타입 컬랙션에서 @OrderColumn 로 정한 컬랙션의 위치값을 반환 (안쓰는게 좋음 - 생략)
+
+        // 10. function : 사용자 정의 함수
+        String theLastQuery =
+            "select function('group_concat', m.name) from Member m";
+            // "select group_concat(m.name) from Member m"; -> 동일한 출력으로 JPQL표준은 아니지만, 하이버네이트에서는 지원
+        List<String> theLastResult = em.createQuery(
+            theLastQuery, String.class
+        ).getResultList();
+
+        log.info("<=== Last ===>");
+        for (String str : theLastResult) {
+            log.info("str = " + str);
+        }
+        log.info("</=== Last ===>");
+    }
+
+    /* 사용자 정의 함수 등록 */
+    public static class MyH2Dialect extends H2Dialect {
+        public MyH2Dialect() {
+            // persistence.xml에서 'hibernate.dialect'의 값을 변경해야 함.
+            // 클래스 선언부를 보면, 다른 방언들이 어떻게 설정되어있나 확인이 가능하다.
+            registerFunction("group_concat", new StandardSQLFunction("group_concat", StandardBasicTypes.STRING));
+        }
     }
 
     public static void main(String[] args) {
@@ -277,7 +450,9 @@ public class JpaMain {
             // test4(em);
             // test5(em);
             // test6(em);
-            test7(em);
+            // test7(em);
+            // test8(em);
+            test9(em);
 
             tx.commit();
         }

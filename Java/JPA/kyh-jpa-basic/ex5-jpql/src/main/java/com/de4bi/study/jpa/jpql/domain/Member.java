@@ -17,9 +17,12 @@ public class Member {
     @Id @GeneratedValue
     private Long id;
 
+    private MemberType type;
+    
     private String name;
 
     private int age;
+
 
     @ManyToOne
     @JoinColumn(name = "TEAM_ID")
