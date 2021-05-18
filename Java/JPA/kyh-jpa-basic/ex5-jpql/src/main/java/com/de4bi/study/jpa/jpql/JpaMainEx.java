@@ -1,18 +1,22 @@
 package com.de4bi.study.jpa.jpql;
 
+import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.List;
+import java.util.Random;
 
-import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 
 import com.de4bi.study.jpa.jpql.domain.Member;
+import com.de4bi.study.jpa.jpql.domain.MemberType;
+import com.de4bi.study.jpa.jpql.domain.MemberWithNamedQuery;
 import com.de4bi.study.jpa.jpql.domain.Team;
 
 import lombok.extern.slf4j.Slf4j;
+import net.bytebuddy.utility.RandomString;
 
 @Slf4j
 public class JpaMainEx {
@@ -283,10 +287,242 @@ public class JpaMainEx {
         // 원하는 데이터를 가져올 수 있다는 보장이 '없다'.
         // 하이버네이트는 경고 문구를 로그로 남겨주고, 모든 데이터를 메모리에 끌고와서 긁어온다. (DB과부하 발생)
 
-        // [3]번 보충부터 시작. @@
+        // @Entity컬럼에 @BatchSize를 사용하면 in (?, ?) 쿼리를 날려서 어느정도 해결 가능하다.
+
+        // 일반적으로 엔티티가 가진 모양이 아닌 전혀 다른 결과를 내야 하면, 페치 조인보다는 일반 조인 + DTO로 반환이 효과적이다.
+    }
+    
+    /**
+     * 엔티티 직접 접근.
+     */
+    public static void test4(EntityManager em) {
+        // 테스트 초기화
+        Member m = new Member();
+        m.setType(MemberType.ADMIN);
+        m.setName("Robi");
+        m.setAge(10);
+        em.persist(m);
+        em.flush();
+        em.clear();
+
+        String[] querys = {
+            "select m from Member m where m.id = 1",        // 0
+            "select m from Member m where m = 1",           // 1
+            "select m from Member m where m = :member"      // 2
+        };
+/*
+    [0]
+    select
+        member0_.id as id1_0_,
+        member0_.age as age2_0_,
+        member0_.name as name3_0_,
+        member0_.TEAM_ID as team_id5_0_,
+        member0_.type as type4_0_ 
+    from
+        Member member0_ 
+    where
+        member0_.id=1
+    [1]
+    select
+        member0_.id as id1_0_,
+        member0_.age as age2_0_,
+        member0_.name as name3_0_,
+        member0_.TEAM_ID as team_id5_0_,
+        member0_.type as type4_0_ 
+    from
+        Member member0_ 
+    where
+        member0_.id=1
+    [2]
+    select
+        member0_.id as id1_0_,
+        member0_.age as age2_0_,
+        member0_.name as name3_0_,
+        member0_.TEAM_ID as team_id5_0_,
+        member0_.type as type4_0_ 
+    from
+        Member member0_ 
+    where
+        member0_.id=?
+
+    // 세 쿼리 다 비슷한걸 확인 가능.
+*/
+        List<Member> result = null;
+        for (int i = 0; i < querys.length; ++i) {
+            if (i != 2) {
+                result = em.createQuery(querys[i], Member.class).getResultList();
+            }
+            else {
+                result = em.createQuery(querys[i], Member.class).setParameter("member", m).getResultList();
+            }
+        }
+
+        for (Member member : result) {
+            log.info("Member.name : " + member.getName());
+        }
+    }
+
+    /**
+     * Named 쿼리.
+     */
+    public static void test5(EntityManager em) {
+        /*
+            1) 미리 이름을 부여해놓고 사용하는 JPQL
+            2) 정적 쿼리
+            3) 어노테이션 또는 XML에 정의 (@Entity에 @NamedQuery 어노테이션 사용)
+            4) 애플리케이션 로딩 시점에 초기화 후 재사용 (쿼리를 캐싱해놓고 재사용, 성능상 이점)
+            5) 애플리케이션 로딩 시점에 쿼리를 검증 (@NamedQuery 어노테이션의 쿼리에 오류가 있으면 실행이 안됨)
+        */
+        MemberWithNamedQuery m = new MemberWithNamedQuery();
+        m.setName("태훈");
+        m.setAge(30);
+        m.setType(MemberType.ADMIN);
+        em.persist(m);
+        em.flush();
+        em.clear();
+
+        for (MemberWithNamedQuery member : em.createNamedQuery("MemberWithNamedQuery.findByName", MemberWithNamedQuery.class)
+            .setParameter("name", "태훈").getResultList()) {
+                log.info("member.id = " + member.getId());
+                log.info("member.name = " + member.getName());
+                log.info("member.age = " + member.getAge());
+                log.info("member.type = " + member.getType());
+        }
+
+        // <XML에 정의하는 법 (xml이 코드보다 우선권을 가지므로, 다양한 솔루션으로 배포하는 경우에는 이게 더 유리하다!)
+        // [META-INF/persistence.xml 파일]
+        /*
+            <persistence-unit name ="jpa-named-q">
+                <mapping-file>META-INF/ormMember.xml</mapping-file>
+
+        */
+        // [META-INF/ormMember.xml 파일]
+        /*
+            <?xml version="1.0" encoding="UTF-8"?>
+            <entity-mappings xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm" version="2.1">
+                <named-query name="Member.findByName">
+                    <query><![CDATA[
+                        select m
+                        from Member m
+                        where m.name = :name
+                    ]]></query>
+                </named-query>
+
+                <named-query name="Member.count">
+                    <query>select count(m) from Member m</query>
+                </named-query>
+            </entity-mappings>
+        */
+
+        // 참고로, 추후 배울 Spring Data JPA의 @Query 어노테이션이 이 @NamedQuery를 이용한 것이다.
+    }
+
+    /**
+     * 벌크 연산.
+     */
+    public static void test6(EntityManager em) {
+        /*
+            아래와 같은 상황이 있다고 가정해 보자.
+
+            1) 재고가 10개 미만인 모든 상품의 가격을 10%상승하려면?
+            2) JPA 변경감지 기능으로 실행하려면 너무 많은 SQL이 실행된다...
+             -> (1) 재고가 10개 미만인 상품을 조회
+                (2) 상품 엔티티의 가격을 10% 인상
+                (3) 트랜젝션 커밋 시점에 변검감지 동작
+                ->> 상품이 100만개라면? 100만개의 UPDATE 쿼리가 DB로...
+
+            이런 경우를 위해 제공하는 기능이 벌크 연산이다.
+        */
+
+        // 테스트 초기화
+        Random rand = new SecureRandom();
+        for (int i = 0; i < 100; ++i) {
+            Member nm = new Member();
+            nm.setAge(rand.nextInt(100));
+            nm.setName(RandomString.make(12));
+            nm.setType(rand.nextInt(100) < 10 ? MemberType.ADMIN : MemberType.USER);
+            em.persist(nm);
+        }
+
+        em.flush();
+        em.clear();
+
+        String query1 = "select m from Member m order by m.age desc";
+        List<Member> result1 = em.createQuery(query1, Member.class).setFirstResult(1).setMaxResults(10).getResultList();
+
+        log.info("query1");
+        log.info("size: " + result1.size());
+        for (Member member : result1) {
+            log.info("member.id = " + member.getId());
+            log.info("member.name = " + member.getName());
+            log.info("member.age = " + member.getAge());
+            log.info("member.type = " + member.getType());
+        }
+
+        em.flush();
+        em.clear();
+
+        log.info("query");
+        String query = "update Member m set m.age = m.age * 2.0 where m.age > :age";
+        int resultCnt = em.createQuery(query).setParameter("age", 50).executeUpdate();
+        log.info("resultCnt : " + resultCnt);
+
+        em.flush();
+        em.clear();
+
+        String query2 = "select m from Member m where m.age > :age";
+        List<Member> result2 = em.createQuery(query2, Member.class).setParameter("age", 100).getResultList();
+
+        log.info("query2");
+        log.info("size: " + result2.size());
+        for (Member member : result2) {
+            log.info("member.id = " + member.getId());
+            log.info("member.name = " + member.getName());
+            log.info("member.age = " + member.getAge());
+            log.info("member.type = " + member.getType());
+        }
+
+        // -> 주의: 벌크 연산(executeUpdate())은 EntityContext를 무시하고 DB에 직접 쿼리한다. (em.flush()는 수행됨)
+        // 해결법: 데이터 꼬임 방지를 위해서는 벌크 연산을 먼저 수행하거나, 별크 연산 수행 후 영속성 콘텍스트를 초기화하는것을 권장.
+
+        Member bm = new Member();
+        bm.setAge(9999);
+        bm.setName("???");
+        em.persist(bm);
+
+        String query3 = "update Member m set m.age = 99999 where m.age = 9999";
+        int result3 = em.createQuery(query3).executeUpdate(); // 자동 flush 수행
+
+        // em.clear(); // 초기화
+
+        log.info("[!!!] result3: " + result3);
+        log.info("member.id = " + bm.getId());
+        log.info("member.name = " + bm.getName());
+        log.info("member.age = " + bm.getAge()); // 여기서는 뭘 해도 값이 9999이다. 이전에 생성된 객체를 참조하고 있기 때문.
+        log.info("member.type = " + bm.getType());
+
+        bm = em.find(Member.class, bm.getId());
+        log.info("[!!!] result3_1");
+        log.info("member.id = " + bm.getId());
+        log.info("member.name = " + bm.getName());
+        log.info("member.age = " + bm.getAge()); // 여기서 출력 결과가 99999라고 생각하면 오산! 9999가 출력되는것을 확인할 수 있다.
+        log.info("member.type = " + bm.getType()); // 단, 위의 em.claer()를 선언하면 DB재조회로 정상적인 값을 획득하는것을 확인할 수 있다.
+        
+        String query3_2 = "select m from Member m where m.age >= 9999"; // 여기서 출력 결과가 99999라고 생각하면 오산! 9999가 출력되는것을 확인할 수 있다.
+        List<Member> result3_2 = em.createQuery(query3_2, Member.class).getResultList(); // 단, 위의 em.claer()를 선언하면 DB재조회로 정상적인 값을 획득하는것을 확인할 수 있다.
+
+        log.info("[!!!] query3_2");
+        log.info("size: " + result3_2.size());
+        for (Member member : result3_2) {
+            log.info("member.id = " + member.getId());
+            log.info("member.name = " + member.getName());
+            log.info("member.age = " + member.getAge());
+            log.info("member.type = " + member.getType());
+        }
     }
 
     public static void main(String[] args) {
+
         final EntityManager em = emf.createEntityManager();
         final EntityTransaction tx = em.getTransaction();
 
@@ -295,7 +531,10 @@ public class JpaMainEx {
 
             // test1(em);
             // test2(em);
-            test3(em);
+            // test3(em);
+            // test4(em);
+            // test5(em);
+            test6(em);
 
             tx.commit();
         }

@@ -19,6 +19,7 @@
             <property name="hibernate.format_sql" value="true"/> 
             <property name="hibernate.use_sql_comments" value="true"/> 
             <property name="hibernate.jdbc.batch_size" value="10"/>
+            <property name="hibernate.jdbc.default_batch_fetch_size" value="100"/>
             <property name="hibernate.hbm2ddl.auto" value="create"/>
             <!-- hibernate.hbm2ddl.auto : DDL로 스키마의 생성을 JPA에서 관리(개발환경에서 사용 권장) -->
             <!-- 1) create: 테이블 존재 시 drop후 재생성(운영에서 절대 사용하지 말 것) -->
