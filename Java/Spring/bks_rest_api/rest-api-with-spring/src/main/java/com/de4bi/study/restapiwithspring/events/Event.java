@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Builder @AllArgsConstructor @NoArgsConstructor
-@Getter @Setter @EqualsAndHashCode(of = {"id"}) // 개체간의 연관관계가 상호참조가 되버리면 StackOverflow가 발생하기에 id만 사용 권장
+@Getter @Setter @EqualsAndHashCode(of = {"id"}) // 개체간의 연관관계가 상호참조가 되어 버리면 StackOverflow가 발생하기에 id만 사용 권장
 public class Event {
 
     private Integer id;
