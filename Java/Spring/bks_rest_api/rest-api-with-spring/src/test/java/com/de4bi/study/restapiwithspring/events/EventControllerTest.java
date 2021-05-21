@@ -35,6 +35,35 @@ public class EventControllerTest {
 
     @Test
     public void createEvent() throws Exception {
+        EventDto event = EventDto.builder()
+                .name("Spring")
+                .description("REST API Development with Spring")
+                .beginEnrollmentDateTime(LocalDateTime.of(2021, 5, 21, 20, 21))
+                .closeEnrollmentDateTime(LocalDateTime.of(2021, 5, 22, 20, 21))
+                .beginEventDateTime(LocalDateTime.of(2021, 5, 23, 20, 21))
+                .endEventDateTime(LocalDateTime.of(2021, 5, 24, 20, 21))
+                .basePrice(100)
+                .maxPrice(200)
+                .limitOfEnrollment(100)
+                .location("강남역 D2 스타텁 팩토리")
+                .build();
+
+        mockMvc.perform(post("/api/events/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaTypes.HAL_JSON)
+                .content(objectMapper.writeValueAsString(event)))
+            .andDo(print()) // 결과 출력
+            .andExpect(status().isCreated()) // 201 Created
+            .andExpect(jsonPath("id").exists())
+            .andExpect(header().exists(HttpHeaders.LOCATION))
+            .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE))
+            .andExpect(jsonPath("id").value(Matchers.not(100)))
+            .andExpect(jsonPath("free").value(Matchers.not(true)))
+            .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()));
+    }
+
+    @Test
+    public void createEvent_Bad_Request() throws Exception {
         Event event = Event.builder()
                 .id(100)
                 .name("Spring")
@@ -57,12 +86,10 @@ public class EventControllerTest {
                 .accept(MediaTypes.HAL_JSON)
                 .content(objectMapper.writeValueAsString(event)))
             .andDo(print()) // 결과 출력
-            .andExpect(status().isCreated()) // 201 Created
-            .andExpect(jsonPath("id").exists())
-            .andExpect(header().exists(HttpHeaders.LOCATION))
-            .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE))
-            .andExpect(jsonPath("id").value(Matchers.not(100)))
-            .andExpect(jsonPath("free").value(Matchers.not(true)))
-            .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()));
+            .andExpect(status().isBadRequest()) // 400 Bad Request
+            ;    
+
+        // application.properties 파일에
+        // spring.jackson.deserialization.fail-on-unknown-properties=true 옵션 추가 필요
     }
 }
