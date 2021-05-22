@@ -92,4 +92,14 @@ public class EventControllerTest {
         // application.properties 파일에
         // spring.jackson.deserialization.fail-on-unknown-properties=true 옵션 추가 필요
     }
+
+    @Test
+    public void createEvent_Bad_Request_Empty_Input() throws Exception {
+        EventDto eventDto = EventDto.builder().build();
+
+        mockMvc.perform(post("/api/events")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(eventDto)))
+            .andExpect(status().isBadRequest());
+    }
 }
