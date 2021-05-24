@@ -69,44 +69,62 @@
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.asciidoctor</groupId>
-				<artifactId>asciidoctor-maven-plugin</artifactId>
-				<version>1.5.8</version>
-				<executions>
-					<execution>
-						<id>generate-docs</id>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>process-asciidoc</goal>
-						</goals>
-						<configuration>
-							<backend>html</backend>
-							<doctype>book</doctype>
-						</configuration>
-					</execution>
-				</executions>
-				<dependencies>
-					<dependency>
-						<groupId>org.springframework.restdocs</groupId>
-						<artifactId>spring-restdocs-asciidoctor</artifactId>
-						<version>${spring-restdocs.version}</version>
-					</dependency>
-				</dependencies>
-			</plugin>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<excludes>
-						<exclude>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-						</exclude>
-					</excludes>
-				</configuration>
-			</plugin>
-		</plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.asciidoctor</groupId>
+                <artifactId>asciidoctor-maven-plugin</artifactId> <!-- asciidoc 생성 -->
+                <version>1.5.3</version>
+                <executions>
+                    <execution>
+                        <id>generate-docs</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>process-asciidoc</goal>
+                        </goals>
+                        <configuration>
+                            <backend>html</backend>
+                            <doctype>book</doctype>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.springframework.restdocs</groupId>
+                        <artifactId>spring-restdocs-asciidoctor</artifactId>
+                        <version>2.0.2.RELEASE</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId> <!-- 생성된 asciidoc을 class/static경로 아래로 이동시킴 -->
+                <version>2.7</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+							<!-- SpringBoot의 기능으로, static 아래 경로는 컨트롤러에 넣지 않아도 접근 가능. (http://localhost:8080/docs/index.html)-->
+                            <outputDirectory>
+                                ${project.build.outputDirectory}/static/docs
+                            </outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>
+                                        ${project.build.directory}/generated-docs
+                                    </directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
 	</build>
 
 </project>

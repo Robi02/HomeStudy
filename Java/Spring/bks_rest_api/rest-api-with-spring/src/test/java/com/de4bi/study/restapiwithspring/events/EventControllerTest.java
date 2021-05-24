@@ -5,6 +5,7 @@ import static org.springframework.restdocs.headers.HeaderDocumentation.requestHe
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.relaxedResponseFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
@@ -78,13 +79,14 @@ public class EventControllerTest {
             .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
             .andExpect(jsonPath("_links.self").exists())
             .andExpect(jsonPath("_links.query-events").exists())
-            .andExpect(jsonPath("_links.update-event").exists())
+            .andExpect(jsonPath("_links.update-event").exists()) // 문서화 하면서 체크하기 때문에 생략 가능한 필드가 몇개 있다.
             .andDo(
                 document("create-event", 
                     links(
                         linkWithRel("self").description("link to self"),
                         linkWithRel("query-events").description("link to query events"),
-                        linkWithRel("update-event").description("link to update an existing event")
+                        linkWithRel("update-event").description("link to update an existing event"),
+                        linkWithRel("profile").description("link to profile doc")
                     ),
                     requestHeaders(
                         headerWithName(HttpHeaders.ACCEPT).description("accept header"),
@@ -106,7 +108,7 @@ public class EventControllerTest {
                         headerWithName(HttpHeaders.LOCATION).description("accept header"),
                         headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header")
                     ),
-                    relaxedResponseFields( /* 응답의 일부분만 있어도 문서화 가능 */
+                    responseFields( //relaxedResponseFields::사용 시 응답의 일부분만 있어도 문서화 가능
                         fieldWithPath("id").description("identifier of new event"),
                         fieldWithPath("name").description("Name of new event"),
                         fieldWithPath("description").description("description of new event"),
@@ -120,7 +122,12 @@ public class EventControllerTest {
                         fieldWithPath("limitOfEnrollment").description("limit of enrollment"),
                         fieldWithPath("free").description("it tells is the event is free or not"),
                         fieldWithPath("offline").description("it tells if thie event is offline event or not"),
-                        fieldWithPath("eventStatus").description("event status")
+                        fieldWithPath("eventStatus").description("event status"),
+
+                        fieldWithPath("_links.self.href").description("link to self"),
+                        fieldWithPath("_links.query-events.href").description("link to query events"),
+                        fieldWithPath("_links.update-event.href").description("link to update an existing event"),
+                        fieldWithPath("_links.profile.href").description("link to profile")
                     )
             ))
         ;
