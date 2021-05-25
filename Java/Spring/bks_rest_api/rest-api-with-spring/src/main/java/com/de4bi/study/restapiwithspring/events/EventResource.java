@@ -3,16 +3,16 @@ package com.de4bi.study.restapiwithspring.events;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.RepresentationModel;
+import org.springframework.validation.Errors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
-public class EventResoruce extends RepresentationModel {
+public class EventResource extends EntityModel<Errors> {
     
    @JsonUnwrapped 
     private Event event;
 
-    public EventResoruce(Event event) {
+    public EventResource(Event event) {
         this.event = event;
         add(linkTo(EventController.class).slash(event.getId()).withSelfRel());
     }

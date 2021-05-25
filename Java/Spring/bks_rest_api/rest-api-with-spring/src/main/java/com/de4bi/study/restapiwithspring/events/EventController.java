@@ -1,14 +1,20 @@
 package com.de4bi.study.restapiwithspring.events;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.core.ControllerEntityLinks;
 import org.springframework.hateoas.server.mvc.ControllerLinkRelationProvider;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -51,12 +57,20 @@ public class EventController {
         Event newEvent = this.eventRepository.save(event);
         WebMvcLinkBuilder selfLinkBuilder = linkTo(EventController.class).slash(newEvent.getId());
         URI createdUri = selfLinkBuilder.toUri();
-        EventResoruce eventResoruce = new EventResoruce(event);
-        eventResoruce.add(linkTo(EventController.class).withRel("query-events"));
-        eventResoruce.add(selfLinkBuilder.withRel("update-event"));
-        eventResoruce.add(Link.of("/docs/index.html#resources-events-create").withRel("profile"));
+        EventResource eventResource = new EventResource(event);
+        eventResource.add(linkTo(EventController.class).withRel("query-events"));
+        eventResource.add(selfLinkBuilder.withRel("update-event"));
+        eventResource.add(Link.of("/docs/index.html#resources-events-create").withRel("profile"));
 
-        return ResponseEntity.created(createdUri).body(eventResoruce);
+        return ResponseEntity.created(createdUri).body(eventResource);
+    }
+
+    @GetMapping
+    public ResponseEntity<?> queryEvents(Pageable pageable, PagedResourcesAssembler<Event> assembler) {
+        Page<Event> page = this.eventRepository.findAll(pageable);
+        var pagedResource = assembler.toModel(page, e -> new EventResource(e));
+        return ResponseEntity.ok(pagedResource);
+
     }
 
     private ResponseEntity<?> badRequest(Errors errors) {
