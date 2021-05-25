@@ -22,6 +22,8 @@ import java.net.URI;
 
 import javax.validation.Valid;
 
+import com.de4bi.study.restapiwithspring.commons.ErrorsResource;
+
 @RequiredArgsConstructor
 @Controller
 @RequestMapping(value = "/api/events", produces = MediaTypes.HAL_JSON_VALUE)
@@ -36,12 +38,12 @@ public class EventController {
     @PostMapping
     public ResponseEntity<?> createEvent(@RequestBody @Valid EventDto eventDto, Errors errors) {
         if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(errors); // JsonSerializer를 상속받은 ErrorSerializer를 생성해야 응답 가능.
+            return badRequest(errors);
         }
 
         eventValidator.validate(eventDto, errors);
         if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(errors);
+            return badRequest(errors);
         }
 
         Event event = modelMapper.map(eventDto, Event.class); // EventDto -> Event 매핑
@@ -53,6 +55,11 @@ public class EventController {
         eventResoruce.add(linkTo(EventController.class).withRel("query-events"));
         eventResoruce.add(selfLinkBuilder.withRel("update-event"));
         eventResoruce.add(Link.of("/docs/index.html#resources-events-create").withRel("profile"));
+
         return ResponseEntity.created(createdUri).body(eventResoruce);
+    }
+
+    private ResponseEntity<?> badRequest(Errors errors) {
+        return ResponseEntity.badRequest().body(ErrorsResource.modelOf(errors)); // JsonSerializer를 상속받은 ErrorsSerializer를 생성해야 응답 가능.
     }
 }

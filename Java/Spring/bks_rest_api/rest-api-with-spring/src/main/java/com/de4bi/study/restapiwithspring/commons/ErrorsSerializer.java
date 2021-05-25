@@ -10,12 +10,13 @@ import org.springframework.boot.jackson.JsonComponent;
 import org.springframework.validation.Errors;
 
 @JsonComponent
-public class ErrorSerializer extends JsonSerializer<Errors> {
+public class ErrorsSerializer extends JsonSerializer<Errors> {
 
     @Override
     public void serialize(Errors errors, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+        gen.writeFieldName("errors");
         gen.writeStartArray();
-        errors.getFieldErrors().stream().forEach(e -> {
+        errors.getFieldErrors().forEach(e -> {
             try {
                 gen.writeStartObject();
                 gen.writeStringField("field", e.getField());
@@ -27,12 +28,10 @@ public class ErrorSerializer extends JsonSerializer<Errors> {
                     gen.writeStringField("rejectedValue", rejectedValue.toString());
                 }
                 gen.writeEndObject();
-            }
-            catch (IOException e1) {
+            } catch (IOException e1) {
                 e1.printStackTrace();
             }
         });
-
         errors.getGlobalErrors().forEach(e -> {
             try {
                 gen.writeStartObject();
@@ -40,10 +39,10 @@ public class ErrorSerializer extends JsonSerializer<Errors> {
                 gen.writeStringField("code", e.getCode());
                 gen.writeStringField("defaultMessage", e.getDefaultMessage());
                 gen.writeEndObject();
-            }
-            catch (IOException e1) {
+            } catch (IOException e1) {
                 e1.printStackTrace();
             }
         });
+        gen.writeEndArray();
     }
 }
