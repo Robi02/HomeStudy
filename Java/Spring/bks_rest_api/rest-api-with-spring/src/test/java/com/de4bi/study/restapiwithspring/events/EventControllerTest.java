@@ -2,7 +2,6 @@ package com.de4bi.study.restapiwithspring.events;
 
 import static org.springframework.restdocs.headers.HeaderDocumentation.responseHeaders;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
-import static org.mockito.Mockito.description;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -22,43 +21,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDateTime;
 import java.util.stream.IntStream;
 
-import com.de4bi.study.restapiwithspring.common.RestDocConfiguration;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.de4bi.study.restapiwithspring.common.BaseControllerTest;
 
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
 
-@ExtendWith(SpringExtension.class) /* @org.junit.RunWith(SpringRunner.class) : junit4 */
-@SpringBootTest // @SpringBootApplication을 찾아서 모든 Bean의 등록을 수행해줌
-@AutoConfigureMockMvc
-@AutoConfigureRestDocs
-@Import(RestDocConfiguration.class)
-public class EventControllerTest {
-    
-    @Autowired
-    MockMvc mockMvc;
-
-    @Autowired
-    ObjectMapper objectMapper;
+public class EventControllerTest extends BaseControllerTest {
 
     @Autowired
     EventRepository eventRepository;
-
-    @Autowired
-    ModelMapper modelMapper;
 
     @Test
     @DisplayName("정상적으로 이벤트를 생성하는 테스트")
