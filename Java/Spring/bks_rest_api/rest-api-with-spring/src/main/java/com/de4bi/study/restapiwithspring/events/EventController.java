@@ -64,7 +64,7 @@ public class EventController {
         Event newEvent = this.eventRepository.save(event);
         WebMvcLinkBuilder selfLinkBuilder = linkTo(EventController.class).slash(newEvent.getId());
         URI createdUri = selfLinkBuilder.toUri();
-        EventResource eventResource = new EventResource(event);
+        EntityModel<Event> eventResource = EventResource.of(newEvent);
         eventResource.add(linkTo(EventController.class).withRel("query-events"));
         eventResource.add(selfLinkBuilder.withRel("update-event"));
         eventResource.add(Link.of("/docs/index.html#resources-events-create").withRel("profile"));
@@ -79,7 +79,7 @@ public class EventController {
             return ResponseEntity.notFound().build();
         }
         
-        EventResource eventResource = new EventResource(optionalEvent.get());
+        EntityModel<Event> eventResource = EventResource.of(optionalEvent.get());
         eventResource.add(Link.of("/docs/index.html#resources-events-get").withRel("profile"));
         return ResponseEntity.ok(eventResource);
     }
@@ -87,12 +87,10 @@ public class EventController {
     @GetMapping
     public ResponseEntity<?> queryEvents(Pageable pageable, PagedResourcesAssembler<Event> assembler) {
         Page<Event> page = this.eventRepository.findAll(pageable);
-        var pagedResource = assembler.toModel(page, e -> new EventResource(e));
+        var pagedResource = assembler.toModel(page, e -> EventResource.of(e));
         return ResponseEntity.ok(pagedResource);
 
     }
-
-
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateEvent(
@@ -117,7 +115,7 @@ public class EventController {
         this.modelMapper.map(eventDto, existingEvent);
         Event savedEvent = eventRepository.save(existingEvent);
         
-        EventResource eventResource = new EventResource(savedEvent);
+        EntityModel<Event> eventResource = EventResource.of(savedEvent);
         eventResource.add(Link.of("/docs/index.html#resources-events-update").withRel("profile"));
         return ResponseEntity.ok(eventResource);
     }
