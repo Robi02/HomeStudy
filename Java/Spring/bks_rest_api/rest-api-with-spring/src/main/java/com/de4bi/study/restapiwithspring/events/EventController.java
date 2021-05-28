@@ -15,7 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -25,6 +27,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 // import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import java.net.URI;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
@@ -40,6 +43,10 @@ public class EventController {
     private final ModelMapper modelMapper;
 
     private final EventValidator eventValidator;
+
+    private ResponseEntity<?> badRequest(Errors errors) {
+        return ResponseEntity.badRequest().body(ErrorsResource.modelOf(errors)); // JsonSerializer를 상속받은 ErrorsSerializer를 생성해야 응답 가능.
+    }
 
     @PostMapping
     public ResponseEntity<?> createEvent(@RequestBody @Valid EventDto eventDto, Errors errors) {
@@ -65,6 +72,18 @@ public class EventController {
         return ResponseEntity.created(createdUri).body(eventResource);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getEvent(@PathVariable Integer id) {
+        Optional<Event> optionalEvent = this.eventRepository.findById(id);
+        if (optionalEvent.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        EventResource eventResource = new EventResource(optionalEvent.get());
+        eventResource.add(Link.of("/docs/index.html#resources-events-get").withRel("profile"));
+        return ResponseEntity.ok(eventResource);
+    }
+
     @GetMapping
     public ResponseEntity<?> queryEvents(Pageable pageable, PagedResourcesAssembler<Event> assembler) {
         Page<Event> page = this.eventRepository.findAll(pageable);
@@ -73,7 +92,33 @@ public class EventController {
 
     }
 
-    private ResponseEntity<?> badRequest(Errors errors) {
-        return ResponseEntity.badRequest().body(ErrorsResource.modelOf(errors)); // JsonSerializer를 상속받은 ErrorsSerializer를 생성해야 응답 가능.
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateEvent(
+        @PathVariable Integer id, 
+        @RequestBody @Valid EventDto eventDto,Errors errors
+    ){
+        Optional<Event> optionalEvent = this.eventRepository.findById(id);
+        if (optionalEvent.isEmpty()) {
+            return ResponseEntity.notFound().build(); 
+        }
+
+        if (errors.hasErrors()) {
+            return badRequest(errors);
+        }
+
+        this.eventValidator.validate(eventDto, errors);
+        if (errors.hasErrors()) {
+            return badRequest(errors);
+        }
+
+        Event existingEvent = optionalEvent.get();
+        this.modelMapper.map(eventDto, existingEvent);
+        Event savedEvent = eventRepository.save(existingEvent);
+        
+        EventResource eventResource = new EventResource(savedEvent);
+        eventResource.add(Link.of("/docs/index.html#resources-events-update").withRel("profile"));
+        return ResponseEntity.ok(eventResource);
     }
 }
