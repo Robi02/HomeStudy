@@ -1,10 +1,13 @@
 package com.de4bi.study.restapiwithspring.configs;
 
 import com.de4bi.study.restapiwithspring.accounts.Account;
+import com.de4bi.study.restapiwithspring.accounts.AccountRepository;
 import com.de4bi.study.restapiwithspring.accounts.AccountRole;
 import com.de4bi.study.restapiwithspring.accounts.AccountService;
 import com.de4bi.study.restapiwithspring.common.BaseControllerTest;
+import com.de4bi.study.restapiwithspring.commons.AppProperties;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,26 +39,32 @@ public class AuthServerConfigTest extends BaseControllerTest {
     @Autowired
     AccountService accountService;
 
+    @Autowired
+    AccountRepository accountRepository;
+
+    @Autowired
+    AppProperties appProperties;
+
+    @BeforeEach
+    public void setup() {
+        accountRepository.deleteAll();
+    }
+
     @Test
     @DisplayName("인증 토큰을 발급받는 테스트")
     public void getAuthToken() throws Exception {
-        String username = "robi2@gmail.com";
-        String password = "robi";
         Account account = Account.builder()
-            .email(username)
-            .password(password)
+            .email(appProperties.getUserUsername())
+            .password(appProperties.getUserPassowrd())
             .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
             .build();
             
         this.accountService.saveAccount(account);
 
-        String clientId = "myApp";
-        String clientSecret = "pass";
-
         this.mockMvc.perform(post("/oauth/token")
-                    .with(httpBasic(clientId, clientSecret))
-                    .param("username", username)
-                    .param("password", password)
+                    .with(httpBasic(appProperties.getClientId(), appProperties.getClientSecret()))
+                    .param("username", appProperties.getUserUsername())
+                    .param("password", appProperties.getUserPassowrd())
                     .param("grant_type", "password")
             )
             .andDo(print())

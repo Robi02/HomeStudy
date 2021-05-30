@@ -3,8 +3,10 @@ package com.de4bi.study.restapiwithspring.configs;
 import java.util.Set;
 
 import com.de4bi.study.restapiwithspring.accounts.Account;
+import com.de4bi.study.restapiwithspring.accounts.AccountRepository;
 import com.de4bi.study.restapiwithspring.accounts.AccountRole;
 import com.de4bi.study.restapiwithspring.accounts.AccountService;
+import com.de4bi.study.restapiwithspring.commons.AppProperties;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class AppConfig {
+
+    @Autowired
+    AppProperties appProperties;
     
     @Bean
 	public ModelMapper modelMapper() {
@@ -34,18 +39,25 @@ public class AppConfig {
             
             @Autowired
             AccountService accountService;
-            
+
             @Override
             public void run(ApplicationArguments args) throws Exception {
-                Account account = Account.builder()
-                    .email("robi@gmail.com")
-                    .password("robi")
+                Account admin = Account.builder()
+                    .email(appProperties.getAdminUsername())
+                    .password(appProperties.getAdminPassword())
                     .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
                     .build();
 
-                    accountService.saveAccount(account);
+                    accountService.saveAccount(admin);
+
+                    Account user = Account.builder()
+                    .email(appProperties.getUserUsername())
+                    .password(appProperties.getUserPassowrd())
+                    .roles(Set.of(AccountRole.USER))
+                    .build();
+
+                    accountService.saveAccount(user);
             }
         };
-        
     }
 }

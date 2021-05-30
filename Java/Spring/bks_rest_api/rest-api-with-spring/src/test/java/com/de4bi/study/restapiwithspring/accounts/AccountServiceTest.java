@@ -2,6 +2,9 @@ package com.de4bi.study.restapiwithspring.accounts;
 
 import java.util.Set;
 
+import com.de4bi.study.restapiwithspring.commons.AppProperties;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +28,24 @@ public class AccountServiceTest {
     AccountService accountService;
 
     @Autowired
+    AccountRepository accountRepository;
+
+    @Autowired
     PasswordEncoder passwordEncoder;
+
+    @Autowired
+    AppProperties appProperties;
+
+    @BeforeEach
+    public void setup() {
+        accountRepository.deleteAll();
+    }
 
     @Test
     public void findByUsername() {
         // Given
-        String username = "robi02@naver.com";
-        String password = "1q2w3e4r";
+        String username = appProperties.getUserUsername();
+        String password = appProperties.getUserPassowrd();
         Account account = Account.builder()
             .email(username)
             .password(password)
@@ -50,7 +64,7 @@ public class AccountServiceTest {
 
     @Test
     public void findByUsernameFail() {
-        String username = "random@gmail.com";
+        String username = appProperties.getUserUsername() + "_unexists";
         Exception exception = assertThrows(UsernameNotFoundException.class, () -> {
             accountService.loadUserByUsername(username);
         });

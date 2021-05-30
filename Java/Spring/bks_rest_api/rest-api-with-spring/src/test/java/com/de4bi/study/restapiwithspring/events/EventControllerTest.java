@@ -27,6 +27,7 @@ import com.de4bi.study.restapiwithspring.accounts.AccountRepository;
 import com.de4bi.study.restapiwithspring.accounts.AccountRole;
 import com.de4bi.study.restapiwithspring.accounts.AccountService;
 import com.de4bi.study.restapiwithspring.common.BaseControllerTest;
+import com.de4bi.study.restapiwithspring.commons.AppProperties;
 
 import org.aspectj.lang.annotation.Before;
 import org.hamcrest.Matchers;
@@ -53,6 +54,9 @@ public class EventControllerTest extends BaseControllerTest {
     @Autowired
     AccountService accountService;
 
+    @Autowired
+    AppProperties appProperties;
+
     @BeforeEach
     public void setup() {
         this.eventRepository.deleteAll();
@@ -60,8 +64,8 @@ public class EventControllerTest extends BaseControllerTest {
     }
 
     private String getAuthToken() throws Exception {
-        String username = "robi2@gmail.com";
-        String password = "robi";
+        String username = appProperties.getUserUsername();
+        String password = appProperties.getUserPassowrd();
         Account account = Account.builder()
             .email(username)
             .password(password)
@@ -71,8 +75,8 @@ public class EventControllerTest extends BaseControllerTest {
 
         this.accountService.saveAccount(account);
 
-        String clientId = "myApp";
-        String clientSecret = "pass";
+        String clientId = appProperties.getClientId();
+        String clientSecret = appProperties.getClientSecret();
 
         ResultActions perform = this.mockMvc.perform(post("/oauth/token")
                     .with(httpBasic(clientId, clientSecret))
