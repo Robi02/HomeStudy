@@ -11,9 +11,4 @@ public class RestApiWithSpringApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(RestApiWithSpringApplication.class, args);
 	}
-
-	@Bean
-	public ModelMapper modelMapper() {
-		return new ModelMapper();
-	}
  }
