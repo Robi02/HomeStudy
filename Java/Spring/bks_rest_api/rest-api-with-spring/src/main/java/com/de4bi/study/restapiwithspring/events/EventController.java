@@ -12,6 +12,10 @@ import org.springframework.hateoas.server.core.ControllerEntityLinks;
 import org.springframework.hateoas.server.mvc.ControllerLinkRelationProvider;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +35,9 @@ import java.util.Optional;
 
 import javax.validation.Valid;
 
+import com.de4bi.study.restapiwithspring.accounts.Account;
+import com.de4bi.study.restapiwithspring.accounts.AccountAdaptor;
+import com.de4bi.study.restapiwithspring.accounts.CurrentUser;
 import com.de4bi.study.restapiwithspring.commons.ErrorsResource;
 
 @RequiredArgsConstructor
@@ -50,6 +57,8 @@ public class EventController {
 
     @PostMapping
     public ResponseEntity<?> createEvent(@RequestBody @Valid EventDto eventDto, Errors errors) {
+        Authentication Authentication = SecurityContextHolder.getContext().getAuthentication();
+        
         if (errors.hasErrors()) {
             return badRequest(errors);
         }
@@ -85,9 +94,23 @@ public class EventController {
     }
 
     @GetMapping
-    public ResponseEntity<?> queryEvents(Pageable pageable, PagedResourcesAssembler<Event> assembler) {
+    public ResponseEntity<?> queryEvents(
+        Pageable pageable,
+        PagedResourcesAssembler<Event> assembler,
+        @AuthenticationPrincipal AccountAdaptor currentUser
+        // @CurrentUser Account currentUser
+    ) {
+        Authentication Authentication = SecurityContextHolder.getContext().getAuthentication();
+
         Page<Event> page = this.eventRepository.findAll(pageable);
-        var pagedResource = assembler.toModel(page, e -> EventResource.of(e));
+        PagedModel<EntityModel<Event>> pagedResource = assembler.toModel(page, e -> EventResource.of(e));
+
+        pagedResource.add(Link.of("/docs/index.html#resources-events-query-events"));
+
+        if (currentUser != null) {
+            pagedResource.add(linkTo(EventController.class).withRel("create-event"));
+        }
+
         return ResponseEntity.ok(pagedResource);
 
     }
