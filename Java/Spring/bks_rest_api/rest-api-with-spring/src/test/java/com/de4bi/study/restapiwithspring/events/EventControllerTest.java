@@ -294,7 +294,7 @@ public class EventControllerTest extends BaseControllerTest {
                 // .andExpect(jsonPath("_embeded.eventList[0]._links.self").exists())
                 .andExpect(jsonPath("_links.self").exists())
                 //.andExpect(jsonPath("_links.profile").exists())
-                .andExpect(jsonPath("_links.creat-event").exists())
+                .andExpect(jsonPath("_links.create-event").exists())
                 .andDo(document("query-events"))
         ;
     }

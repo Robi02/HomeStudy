@@ -11,6 +11,7 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.core.ControllerEntityLinks;
 import org.springframework.hateoas.server.mvc.ControllerLinkRelationProvider;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -98,7 +99,7 @@ public class EventController {
         Pageable pageable,
         PagedResourcesAssembler<Event> assembler,
         @AuthenticationPrincipal AccountAdaptor currentUser
-        // @CurrentUser Account currentUser
+        // @CurrentUser Account currentUser // ... 왜 안돼지?
     ) {
         Authentication Authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -118,7 +119,8 @@ public class EventController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateEvent(
         @PathVariable Integer id, 
-        @RequestBody @Valid EventDto eventDto,Errors errors
+        @RequestBody @Valid EventDto eventDto,Errors errors,
+        @AuthenticationPrincipal AccountAdaptor currentUser
     ){
         Optional<Event> optionalEvent = this.eventRepository.findById(id);
         if (optionalEvent.isEmpty()) {
@@ -135,6 +137,10 @@ public class EventController {
         }
 
         Event existingEvent = optionalEvent.get();
+        if (!existingEvent.getManager().equals(currentUser.getAccount())) {
+            return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+        }
+        
         this.modelMapper.map(eventDto, existingEvent);
         Event savedEvent = eventRepository.save(existingEvent);
         
