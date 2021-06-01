@@ -63,7 +63,7 @@ public class EventControllerTest extends BaseControllerTest {
         this.accountRepository.deleteAll();
     }
 
-    private String getAuthToken() throws Exception {
+    public Account createAccont() {
         String username = appProperties.getUserUsername();
         String password = appProperties.getUserPassowrd();
         Account account = Account.builder()
@@ -71,17 +71,22 @@ public class EventControllerTest extends BaseControllerTest {
             .password(password)
             .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
             .build();
-        
 
-        this.accountService.saveAccount(account);
+        return this.accountService.saveAccount(account);
+    }
+
+    private String getAccessToken(boolean needToCreateAccount) throws Exception {
+        // Given
+        if (needToCreateAccount) {
+            createAccont();
+        }
 
         String clientId = appProperties.getClientId();
         String clientSecret = appProperties.getClientSecret();
-
         ResultActions perform = this.mockMvc.perform(post("/oauth/token")
                     .with(httpBasic(clientId, clientSecret))
-                    .param("username", username)
-                    .param("password", password)
+                    .param("username", appProperties.getUserUsername())
+                    .param("password", appProperties.getUserPassowrd())
                     .param("grant_type", "password")
         );
 
@@ -90,8 +95,8 @@ public class EventControllerTest extends BaseControllerTest {
         return parser.parseMap(response).get("access_token").toString();
     }
 
-    private String getBearerToken() throws Exception {
-        return "Bearer " + getAuthToken();
+    private String getBearerToken(boolean needToCreateAccount) throws Exception {
+        return "Bearer " + getAccessToken(needToCreateAccount);
     }
 
     @Test
@@ -111,7 +116,7 @@ public class EventControllerTest extends BaseControllerTest {
                 .build();
 
         mockMvc.perform(post("/api/events/")
-                .header(HttpHeaders.AUTHORIZATION, getBearerToken())
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(true))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaTypes.HAL_JSON)
                 .content(objectMapper.writeValueAsString(event)))
@@ -200,7 +205,7 @@ public class EventControllerTest extends BaseControllerTest {
                 .build();
 
         mockMvc.perform(post("/api/events/")
-                .header(HttpHeaders.AUTHORIZATION, getBearerToken())
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(true))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaTypes.HAL_JSON)
                 .content(objectMapper.writeValueAsString(event)))
@@ -218,7 +223,7 @@ public class EventControllerTest extends BaseControllerTest {
         EventDto eventDto = EventDto.builder().build();
 
         mockMvc.perform(post("/api/events")
-                .header(HttpHeaders.AUTHORIZATION, getBearerToken())
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(true))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(eventDto)))
                 .andDo(print())
@@ -240,7 +245,7 @@ public class EventControllerTest extends BaseControllerTest {
             .build();
 
         mockMvc.perform(post("/api/events")
-                .header(HttpHeaders.AUTHORIZATION, getBearerToken())
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(true))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(eventDto)))
                 .andDo(print()) // 결과 출력
@@ -283,7 +288,7 @@ public class EventControllerTest extends BaseControllerTest {
 
         // When
         this.mockMvc.perform(get("/api/events")
-                    .header(HttpHeaders.AUTHORIZATION, getBearerToken())        
+                    .header(HttpHeaders.AUTHORIZATION, getBearerToken(true))        
                     .param("page", "1")
                     .param("size", "10")
                     .param("sort", "name,DESC")
@@ -303,7 +308,8 @@ public class EventControllerTest extends BaseControllerTest {
     @DisplayName("이벤트 하나 조회하기")
     public void getEvent() throws Exception {
         // Given
-        Event event = this.generateEvent(100);
+        Account account = this.createAccont();
+        Event event = this.generateEvent(100, account);
 
         // When & Then
         this.mockMvc.perform(get("/api/events/{id}", event.getId()))
@@ -329,14 +335,14 @@ public class EventControllerTest extends BaseControllerTest {
     @DisplayName("이벤트를 정상적으로 수정하기")
     public void updateEvent() throws Exception {
         // Given
-        Event event = this.generateEvent(200);
+        Event event = this.generateEvent(200, this.createAccont());
         EventDto eventDto = this.modelMapper.map(event, EventDto.class);
         String eventName = "Updated Event";
         eventDto.setName(eventName);
         
         // When & Then
         this.mockMvc.perform(put("/api/events/{id}", event.getId())
-                .header(HttpHeaders.AUTHORIZATION, getBearerToken())        
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(false))        
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(eventDto))
             )
@@ -356,7 +362,7 @@ public class EventControllerTest extends BaseControllerTest {
 
         // When & Then
         this.mockMvc.perform(put("/api/events/{id}", event.getId())
-                .header(HttpHeaders.AUTHORIZATION, getBearerToken())
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(true))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(eventDto))
             )
@@ -376,7 +382,7 @@ public class EventControllerTest extends BaseControllerTest {
 
         // When & Then
         this.mockMvc.perform(put("/api/events/{id}", event.getId())
-                .header(HttpHeaders.AUTHORIZATION, getBearerToken())
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(true))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(eventDto))
             )
@@ -396,7 +402,7 @@ public class EventControllerTest extends BaseControllerTest {
 
         // When & Then
         this.mockMvc.perform(put("/api/events/{id}", (event.getId() + 1))
-                .header(HttpHeaders.AUTHORIZATION, getBearerToken())
+                .header(HttpHeaders.AUTHORIZATION, getBearerToken(true))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(eventDto))
             )
@@ -405,24 +411,29 @@ public class EventControllerTest extends BaseControllerTest {
         ;
     }
 
-    private Event generateEvent(int i) {
+    private Event generateEvent(int i, Account account) {
         Event event = Event.builder()
-            .id(i)
-            .name("event " + i)
-            .description("REST API Development with Spring")
-            .beginEnrollmentDateTime(LocalDateTime.of(2021, 5, 21, 20, 21))
-            .closeEnrollmentDateTime(LocalDateTime.of(2021, 5, 22, 20, 21))
-            .beginEventDateTime(LocalDateTime.of(2021, 5, 23, 20, 21))
-            .endEventDateTime(LocalDateTime.of(2021, 5, 24, 20, 21))
-            .basePrice(100)
-            .maxPrice(200)
-            .limitOfEnrollment(100)
-            .location("강남역 D2 스타텁 팩토리")
-            .free(false)
-            .offline(true)
-            .eventStatus(EventStatus.DRAFT)
-            .build();
+        .id(i)
+        .name("event " + i)
+        .description("REST API Development with Spring")
+        .beginEnrollmentDateTime(LocalDateTime.of(2021, 5, 21, 20, 21))
+        .closeEnrollmentDateTime(LocalDateTime.of(2021, 5, 22, 20, 21))
+        .beginEventDateTime(LocalDateTime.of(2021, 5, 23, 20, 21))
+        .endEventDateTime(LocalDateTime.of(2021, 5, 24, 20, 21))
+        .basePrice(100)
+        .maxPrice(200)
+        .limitOfEnrollment(100)
+        .location("강남역 D2 스타텁 팩토리")
+        .free(false)
+        .offline(true)
+        .manager(account)
+        .eventStatus(EventStatus.DRAFT)
+        .build();
 
         return this.eventRepository.save(event);
+    }
+
+    private Event generateEvent(int i) {
+        return generateEvent(i, null);
     }
 }
