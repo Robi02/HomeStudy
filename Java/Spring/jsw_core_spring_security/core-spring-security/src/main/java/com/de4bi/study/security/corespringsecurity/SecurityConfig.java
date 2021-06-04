@@ -11,11 +11,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
@@ -127,6 +129,30 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         return null;
                     }
                 }); // 사용자 정의 핸들러 */
+        ;
+
+        // 익명 사용자 관련
+        /* http
+            .anonymous();
+        */
+
+        // 세션 관련
+        http
+            .sessionManagement()
+                .maximumSessions(-1) // 최대 허용가능 세션 수 (-1: 무제한)
+                .maxSessionsPreventsLogin(true) // true: 동시 로그인 차단, false: 기존 세션 만료(default)
+                .expiredUrl("/login") // 세션이 만료되면 이동할 페이지
+                .and()
+                    .invalidSessionUrl("/login") // 비인가 세션이면 이동할 페이지
+                    .sessionFixation()
+                        // .none() // 기존 세션아이디 그대로 사용 (위험)
+                        // .migrateSession() // Servlet3.1 미만에서 기본값으로 사용 (changeSessionId와 동일한 기능?)
+                        .changeSessionId() // Servlet3.1이상에서 기본값, 속성값은 유지, 세션아이디를 응답시마다 변경시켜서 세션고정(SessionFixation) 보호 (default)
+                        // .newSession() // 세션 속성값도 새로 초기화하여 세션아이디 변경
+                // .sessionCreationPolicy(SessionCreationPolicy.ALWAYS) // 스프링 시큐리티가 항상 세션 생성
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // 필요 시 세션 생성 (기본)
+                // .sessionCreationPolicy(SessionCreationPolicy.NEVER) // 생성하지 않지만, 이미 존재하면 사용
+                // .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 세션을 생성하지 않고, 존재해도 사용하지 않음
         ;
     }
 }
