@@ -5,6 +5,9 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 
 @Configuration
 @EnableWebSecurity
@@ -22,6 +25,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // 인가
         http
             .authorizeRequests()
+                .antMatchers("/login").permitAll()
                 .antMatchers("/user").hasRole("USER")
                 .antMatchers("/admin/pay").hasRole("ADMIN")
                 .antMatchers("/admin/**").access("hasRole('ADMIN') or hasRole('SYS')")
@@ -31,6 +35,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // 로그인
         http
             .formLogin()
+            .successHandler((request, response, authentication) -> {
+                RequestCache requestCache = new HttpSessionRequestCache();
+                SavedRequest savedRequest = requestCache.getRequest(request, response); // 세션에서 저장된 정보 획득
+                String redirectUrl = savedRequest.getRedirectUrl();
+                response.sendRedirect(redirectUrl);
+            }) // AuthenticationSuccessHandler.onAuthenticationSuccess(...)
+        ;
+
+        // 예외 처리
+        http
+            .exceptionHandling()
+                .authenticationEntryPoint((request, response, authException) -> { // AuthenticationEntryPoint().commence(...);
+                    response.sendRedirect("/login");
+                }) // 인증실패 시 처리
+                .accessDeniedHandler((request, response, accessDeniedException) -> { // AccessDeniedHandler().handle(...)
+                    response.sendRedirect("/denied");
+                }) // 인가실패 시 처리
         ;
     }
 }
