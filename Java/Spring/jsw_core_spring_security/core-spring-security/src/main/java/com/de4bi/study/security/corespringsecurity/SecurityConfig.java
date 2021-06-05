@@ -53,5 +53,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     response.sendRedirect("/denied");
                 }) // 인가실패 시 처리
         ;
+
+        // CSRF (Cross Site Request Forgery)
+        http
+            .csrf(); // .disable(); // 기본은 활성상태
     }
 }
