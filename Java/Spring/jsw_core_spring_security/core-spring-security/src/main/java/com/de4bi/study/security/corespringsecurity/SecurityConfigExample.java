@@ -50,6 +50,14 @@
 //     [Save into SecurityContext]
 //     |
 //     [SuccessHandler]
+//
+//
+//      Authentication a;
+//      a.getPrincipal()        // 사용자 아이디 혹은 User객체
+//      a.getCredentials()      // 사용자 비밀번호
+//      a.getAuthorities()      // 사용자 권한
+//      a.getDetails()          // 부가정보
+//      a.isAuthenticated()     // 인증 여부
 // */
 
 // @Slf4j
