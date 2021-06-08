@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.User;
 
 public class AccountContext extends User {
     
-    private Account account;
+    private final Account account;
 
     public AccountContext(Account account, Collection<? extends GrantedAuthority> authorities) {
         super(account.getUsername(), account.getPassword(), authorities);

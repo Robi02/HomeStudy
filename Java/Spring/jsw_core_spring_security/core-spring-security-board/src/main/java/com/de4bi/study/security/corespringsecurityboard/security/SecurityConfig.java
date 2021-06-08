@@ -36,6 +36,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // auth.inMemoryAuthentication().withUser("admin").password(password).roles(UserRoles.ADMIN.name());
         */
 
+        // [DB를 연동한 사용자 인증]
         auth.userDetailsService(userDetailsService);
     }
 
