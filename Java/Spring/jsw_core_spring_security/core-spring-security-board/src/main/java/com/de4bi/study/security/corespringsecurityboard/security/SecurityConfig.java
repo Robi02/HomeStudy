@@ -1,8 +1,11 @@
 package com.de4bi.study.security.corespringsecurityboard.security;
 
+import com.de4bi.study.security.corespringsecurityboard.security.provider.CustomAuthenticationProvider;
+
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -26,6 +29,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        return new CustomAuthenticationProvider(userDetailsService, passwordEncoder());
+    }
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         /* [메모리 방식의 사용자 인증]
@@ -38,6 +46,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         // [DB를 연동한 사용자 인증]
         auth.userDetailsService(userDetailsService);
+
+        // [사용자 정의 인증 Provider 등록]
+        auth.authenticationProvider(authenticationProvider());
     }
 
     @Override
