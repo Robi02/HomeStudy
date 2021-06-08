@@ -1,10 +1,13 @@
 package com.de4bi.study.security.corespringsecurityboard.security;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.de4bi.study.security.corespringsecurityboard.security.provider.CustomAuthenticationProvider;
 
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     
     private final UserDetailsService userDetailsService;
+    private final AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -36,7 +40,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        /* [메모리 방식의 사용자 인증]
+        /* [1. 메모리 방식의 사용자 인증]
         // String password = passwordEncoder().encode("1111");
 
         // auth.inMemoryAuthentication().withUser("user").password(password).roles(UserRoles.USER.name());
@@ -44,10 +48,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // auth.inMemoryAuthentication().withUser("admin").password(password).roles(UserRoles.ADMIN.name());
         */
 
-        // [DB를 연동한 사용자 인증]
-        auth.userDetailsService(userDetailsService);
+        // [2. DB를 연동한 사용자 인증 (내부에서 accountRepository를 사용)]
+        // auth.userDetailsService(userDetailsService);
 
-        // [사용자 정의 인증 Provider 등록]
+        // [3. 사용자 정의 인증 Provider 등록 (내부에서 userDetailsService, passwordEncoder를 사용)]
+        // (주의: 1, 2, 3 방식을 동시에 사용하면, Provider가 여러개가 등록되게 되고 그 중 하나만 통과하면 인증이 성공하는 것으로 보인다!)
         auth.authenticationProvider(authenticationProvider());
     }
 
@@ -67,6 +72,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .loginPage("/login")
                 .defaultSuccessUrl("/")
                 .loginProcessingUrl("/login_proc")
+                .authenticationDetailsSource(authenticationDetailsSource)
                 .permitAll()
         ;
     }
