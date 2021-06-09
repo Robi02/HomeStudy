@@ -2,6 +2,7 @@ package com.de4bi.study.security.corespringsecurityboard.security;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.de4bi.study.security.corespringsecurityboard.security.handler.CustomAccessDeniedHandler;
 import com.de4bi.study.security.corespringsecurityboard.security.provider.CustomAuthenticationProvider;
 
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -17,6 +18,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
@@ -42,6 +44,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new CustomAuthenticationProvider(userDetailsService, passwordEncoder());
     }
 
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        CustomAccessDeniedHandler handler = new CustomAccessDeniedHandler();
+        handler.setErrorPage("/denied");
+        return handler;
+    }
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         /* [1. 메모리 방식의 사용자 인증]
@@ -65,9 +74,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
             .authorizeRequests()
             .antMatchers("/", "/users", "/user/login/**", "/login*").permitAll()
-            .antMatchers("/mypage").hasRole(UserRoles.USER.name())
-            .antMatchers("/messages").hasRole(UserRoles.MANAGER.name())
-            .antMatchers("/config").hasRole(UserRoles.ADMIN.name())
+            .antMatchers("/mypage").hasAuthority(UserRoles.USER.name())
+            .antMatchers("/messages").hasAuthority(UserRoles.MANAGER.name())
+            .antMatchers("/config").hasAuthority(UserRoles.ADMIN.name())
             .anyRequest().authenticated()
         ;
 
@@ -80,6 +89,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .successHandler(authenticationSuccessHandler)
                 .failureHandler(authenticationFailureHandler)
                 .permitAll()
+        ;
+
+        http
+            .exceptionHandling().accessDeniedHandler(accessDeniedHandler())
         ;
     }
 
