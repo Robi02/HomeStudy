@@ -44,6 +44,6 @@ public class AjaxLoginProcessingFilter extends AbstractAuthenticationProcessingF
     }
 
     private boolean isAjax(HttpServletRequest request) {
-        return ("XMLHttpReqeust".equals(request.getHeader("X-Requested-With")));
+        return ("XMLHttpRequest".equals(request.getHeader("X-Requested-With")));
     }
 }

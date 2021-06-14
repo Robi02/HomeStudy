@@ -1,7 +1,8 @@
-package com.de4bi.study.security.corespringsecurityboard.security;
+package com.de4bi.study.security.corespringsecurityboard.security.configs;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.de4bi.study.security.corespringsecurityboard.security.UserRoles;
 import com.de4bi.study.security.corespringsecurityboard.security.filter.AjaxLoginProcessingFilter;
 import com.de4bi.study.security.corespringsecurityboard.security.handler.CustomAccessDeniedHandler;
 import com.de4bi.study.security.corespringsecurityboard.security.provider.CustomAuthenticationProvider;
@@ -9,6 +10,7 @@ import com.de4bi.study.security.corespringsecurityboard.security.provider.Custom
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -22,13 +24,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
+@Order(1)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     
     private final UserDetailsService userDetailsService;
@@ -51,13 +53,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         CustomAccessDeniedHandler handler = new CustomAccessDeniedHandler();
         handler.setErrorPage("/denied");
         return handler;
-    }
-
-    @Bean
-    public AjaxLoginProcessingFilter ajaxLoginProcessingFilter() throws Exception {
-        AjaxLoginProcessingFilter filter = new AjaxLoginProcessingFilter();
-        filter.setAuthenticationManager(super.authenticationManagerBean());
-        return filter;
     }
 
     @Override
@@ -102,11 +97,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http
             .exceptionHandling().accessDeniedHandler(accessDeniedHandler())
-        ;
-
-        http
-            .addFilterBefore(ajaxLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class)
-            .csrf().disable() // 임시로 꺼놓는다
         ;
     }
 
