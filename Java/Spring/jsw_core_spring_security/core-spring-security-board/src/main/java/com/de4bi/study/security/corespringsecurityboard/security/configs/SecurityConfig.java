@@ -5,6 +5,8 @@ import javax.servlet.http.HttpServletRequest;
 import com.de4bi.study.security.corespringsecurityboard.security.UserRoles;
 import com.de4bi.study.security.corespringsecurityboard.security.filter.AjaxLoginProcessingFilter;
 import com.de4bi.study.security.corespringsecurityboard.security.handler.CustomAccessDeniedHandler;
+import com.de4bi.study.security.corespringsecurityboard.security.handler.CustomAuthenticationFailureHandler;
+import com.de4bi.study.security.corespringsecurityboard.security.handler.CustomAuthenticationSuccessHandler;
 import com.de4bi.study.security.corespringsecurityboard.security.provider.CustomAuthenticationProvider;
 
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -22,8 +24,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,8 +35,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     
     private final UserDetailsService userDetailsService;
     private final AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
-    private final AuthenticationSuccessHandler authenticationSuccessHandler;
-    private final AuthenticationFailureHandler authenticationFailureHandler;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -46,6 +44,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public AuthenticationProvider authenticationProvider() {
         return new CustomAuthenticationProvider(userDetailsService, passwordEncoder());
+    }
+
+    @Bean
+    public CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler() {
+        return new CustomAuthenticationSuccessHandler();
+    }
+
+    @Bean
+    public CustomAuthenticationFailureHandler customAuthenticationFailureHandler() {
+        return new CustomAuthenticationFailureHandler();
     }
 
     @Bean
@@ -90,8 +98,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .defaultSuccessUrl("/")
                 .loginProcessingUrl("/login_proc")
                 .authenticationDetailsSource(authenticationDetailsSource)
-                .successHandler(authenticationSuccessHandler)
-                .failureHandler(authenticationFailureHandler)
+                .successHandler(customAuthenticationSuccessHandler())
+                .failureHandler(customAuthenticationFailureHandler())
                 .permitAll()
         ;
 

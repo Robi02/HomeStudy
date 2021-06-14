@@ -1,6 +1,8 @@
 package com.de4bi.study.security.corespringsecurityboard.security.configs;
 
 import com.de4bi.study.security.corespringsecurityboard.security.filter.AjaxLoginProcessingFilter;
+import com.de4bi.study.security.corespringsecurityboard.security.handler.AjaxAuthenticationFailureHandler;
+import com.de4bi.study.security.corespringsecurityboard.security.handler.AjaxAuthenticationSuccessHandler;
 import com.de4bi.study.security.corespringsecurityboard.security.provider.AjaxAuthenticationProvider;
 
 import org.springframework.context.annotation.Bean;
@@ -27,6 +29,8 @@ public class AjaxSecurityConfig extends WebSecurityConfigurerAdapter {
     public AjaxLoginProcessingFilter ajaxLoginProcessingFilter() throws Exception {
         AjaxLoginProcessingFilter filter = new AjaxLoginProcessingFilter();
         filter.setAuthenticationManager(super.authenticationManagerBean());
+        filter.setAuthenticationSuccessHandler(ajaxAuthenticationSuccessHandler());
+        filter.setAuthenticationFailureHandler(ajaxAuthenticationFailureHandler());
         return filter;
     }
 
@@ -38,6 +42,16 @@ public class AjaxSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public AjaxAuthenticationProvider ajaxAuthenticationProvider() {
         return new AjaxAuthenticationProvider(userDetailsService, passwordEncoder());
+    }
+
+    @Bean
+    public AjaxAuthenticationSuccessHandler ajaxAuthenticationSuccessHandler() {
+        return new AjaxAuthenticationSuccessHandler();
+    }
+
+    @Bean
+    public AjaxAuthenticationFailureHandler ajaxAuthenticationFailureHandler() {
+        return new AjaxAuthenticationFailureHandler();
     }
 
     @Override
