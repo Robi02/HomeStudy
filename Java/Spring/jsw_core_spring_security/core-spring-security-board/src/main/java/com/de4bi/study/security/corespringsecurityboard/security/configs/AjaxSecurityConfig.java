@@ -1,6 +1,9 @@
 package com.de4bi.study.security.corespringsecurityboard.security.configs;
 
+import com.de4bi.study.security.corespringsecurityboard.security.UserRoles;
+import com.de4bi.study.security.corespringsecurityboard.security.common.AjaxLoginAuthenticationEntryPoint;
 import com.de4bi.study.security.corespringsecurityboard.security.filter.AjaxLoginProcessingFilter;
+import com.de4bi.study.security.corespringsecurityboard.security.handler.AjaxAccessDeniedHandler;
 import com.de4bi.study.security.corespringsecurityboard.security.handler.AjaxAuthenticationFailureHandler;
 import com.de4bi.study.security.corespringsecurityboard.security.handler.AjaxAuthenticationSuccessHandler;
 import com.de4bi.study.security.corespringsecurityboard.security.provider.AjaxAuthenticationProvider;
@@ -54,6 +57,11 @@ public class AjaxSecurityConfig extends WebSecurityConfigurerAdapter {
         return new AjaxAuthenticationFailureHandler();
     }
 
+    @Bean
+    public AjaxAccessDeniedHandler ajaxAccessDeniedHandler() {
+        return new AjaxAccessDeniedHandler();
+    }
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(ajaxAuthenticationProvider());
@@ -64,10 +72,17 @@ public class AjaxSecurityConfig extends WebSecurityConfigurerAdapter {
         http
             .antMatcher("/api/**")
             .authorizeRequests()
+            .antMatchers("/api/messages").hasAuthority(UserRoles.MANAGER.name())
             .anyRequest().authenticated()
         .and()
             .addFilterBefore(ajaxLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class)
             .csrf().disable() // 임시로 꺼놓는다
+        ;
+
+        http
+            .exceptionHandling()
+            .authenticationEntryPoint(new AjaxLoginAuthenticationEntryPoint())
+            .accessDeniedHandler(ajaxAccessDeniedHandler())
         ;
     }
 }
