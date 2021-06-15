@@ -29,7 +29,7 @@ public class AjaxLoginProcessingFilter extends AbstractAuthenticationProcessingF
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
-        if (isAjax(request)) {
+        if (isAjax(request) == false) {
             throw new IllegalStateException("Authentication is not supported.");
         }
 
@@ -44,6 +44,7 @@ public class AjaxLoginProcessingFilter extends AbstractAuthenticationProcessingF
     }
 
     private boolean isAjax(HttpServletRequest request) {
-        return ("XMLHttpRequest".equals(request.getHeader("X-Requested-With")));
+        String header = request.getHeader("X-Requested-With");
+        return ("XMLHttpRequest".equals(header));
     }
 }

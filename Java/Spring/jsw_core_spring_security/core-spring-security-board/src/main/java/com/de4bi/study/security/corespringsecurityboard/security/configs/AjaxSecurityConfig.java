@@ -83,7 +83,7 @@ public class AjaxSecurityConfig extends WebSecurityConfigurerAdapter {
         .and()
             // [1] Filter로 추가
             // .addFilterBefore(ajaxLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class)
-            .csrf().disable() // 임시로 꺼놓는다
+            .csrf().disable()
         ;
 
         http
