@@ -1,0 +1,11 @@
+package com.de4bi.study.security.corespringsecurityboard.security.repository;
+
+import org.springframework.boot.autoconfigure.web.WebProperties.Resources;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+public class ResourceRepository extends JpaRepository<Resources, Long> {
+    
+}
+
+/* 강의 건너뜀으로 인한 코드 누락으로 이전강의로 되돌아감. 추후 다시 작업. */
