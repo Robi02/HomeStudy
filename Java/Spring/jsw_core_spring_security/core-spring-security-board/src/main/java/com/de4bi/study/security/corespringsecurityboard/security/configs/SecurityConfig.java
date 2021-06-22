@@ -1,18 +1,18 @@
 package com.de4bi.study.security.corespringsecurityboard.security.configs;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.de4bi.study.security.corespringsecurityboard.security.UserRoles;
-import com.de4bi.study.security.corespringsecurityboard.security.filter.AjaxLoginProcessingFilter;
+import com.de4bi.study.security.corespringsecurityboard.security.factory.UrlResourcesMapFactoryBean;
 import com.de4bi.study.security.corespringsecurityboard.security.handler.CustomAccessDeniedHandler;
 import com.de4bi.study.security.corespringsecurityboard.security.handler.CustomAuthenticationFailureHandler;
 import com.de4bi.study.security.corespringsecurityboard.security.handler.CustomAuthenticationSuccessHandler;
 import com.de4bi.study.security.corespringsecurityboard.security.metadatasource.UrlFilterInvocationSecurityMetadataSource;
 import com.de4bi.study.security.corespringsecurityboard.security.provider.CustomAuthenticationProvider;
+import com.de4bi.study.security.corespringsecurityboard.security.service.SecurityResourceService;
 
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -44,6 +44,7 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     
     private final UserDetailsService userDetailsService;
+    private final SecurityResourceService securityResourceService;
     private final AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
 
     @Bean
@@ -82,8 +83,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return filterSecurityInterceptor;
     }
 
-    private UrlFilterInvocationSecurityMetadataSource urlFilterInvocationSecurityMetadataSource() {
-        return new UrlFilterInvocationSecurityMetadataSource();
+    @Bean
+    public UrlFilterInvocationSecurityMetadataSource urlFilterInvocationSecurityMetadataSource() throws Exception {
+        return new UrlFilterInvocationSecurityMetadataSource(urlResourcesMapFactoryBean().getObject(), securityResourceService);
+    }
+
+    private UrlResourcesMapFactoryBean urlResourcesMapFactoryBean() {
+        UrlResourcesMapFactoryBean urlResourcesMapFactoryBean = new UrlResourcesMapFactoryBean();
+        urlResourcesMapFactoryBean.setSecurityResourceService(securityResourceService);
+
+        return urlResourcesMapFactoryBean;
     }
 
     private AccessDecisionManager affirmativeBased() {
@@ -126,6 +135,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // ;
 
         http
+            .exceptionHandling().accessDeniedHandler(accessDeniedHandler())
+        ;
+
+        // [2] FilterSecurityInterceptor + FilterInvocationSecurityMetadataSocurce로 인가처리
+        http
+            .addFilterBefore(customFilterSecurityInterceptor(), FilterSecurityInterceptor.class)
+        ;
+
+        http
+            .authorizeRequests()
+            .anyRequest().authenticated()
+        .and()
             .formLogin()
                 .loginPage("/login")
                 .defaultSuccessUrl("/")
@@ -133,16 +154,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authenticationDetailsSource(authenticationDetailsSource)
                 .successHandler(customAuthenticationSuccessHandler())
                 .failureHandler(customAuthenticationFailureHandler())
-                //.permitAll()
-        ;
-
-        http
-            .exceptionHandling().accessDeniedHandler(accessDeniedHandler())
-        ;
-
-        // [2] FilterSecurityInterceptor + FilterInvocationSecurityMetadataSocurce로 인가처리
-        http
-            .addFilterBefore(customFilterSecurityInterceptor(), FilterSecurityInterceptor.class)
+                .permitAll()
         ;
     }
 

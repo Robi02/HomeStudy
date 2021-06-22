@@ -3,29 +3,36 @@ package com.de4bi.study.security.corespringsecurityboard.security.factory;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import javax.security.auth.message.callback.PrivateKeyCallback.Request;
+import com.de4bi.study.security.corespringsecurityboard.security.service.SecurityResourceService;
 
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
-public class UrlResourcesFactoryBean implements FactoryBean<LinkedHashMap<RequestMatcher, List<ConfigAttribute>>> {
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+public class UrlResourcesMapFactoryBean implements FactoryBean<LinkedHashMap<RequestMatcher, List<ConfigAttribute>>> {
 
     private SecurityResourceService securityResourceService;
     private LinkedHashMap<RequestMatcher, List<ConfigAttribute>> resourceMap;
 
-    public void setSecurityResourceService(SecurityResourceService securityResourceService) {
-        this.securityResourceService = securityResourceService;
-    }
-
     @Override
     public LinkedHashMap<RequestMatcher, List<ConfigAttribute>> getObject() throws Exception {
-        
-        if (resourceMap == null) {
+
+        if(resourceMap == null){
             init();
         }
 
         return resourceMap;
+    }
+
+    private void init() {
+        resourceMap = securityResourceService.getResourceList();
+    }
+
+    public void setSecurityResourceService(SecurityResourceService securityResourceService) {
+        this.securityResourceService = securityResourceService;
     }
 
     @Override
@@ -37,10 +44,4 @@ public class UrlResourcesFactoryBean implements FactoryBean<LinkedHashMap<Reques
     public boolean isSingleton() {
         return true;
     }
-
-    private void init() {
-        resourceMap = securityResourceService.getResourceList();
-    }
 }
-
-/* 강의 건너뜀으로 인한 코드 누락으로 이전강의로 되돌아감. 추후 다시 작업. */
