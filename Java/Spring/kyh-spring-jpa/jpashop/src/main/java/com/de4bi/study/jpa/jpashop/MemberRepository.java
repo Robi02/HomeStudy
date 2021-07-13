@@ -3,6 +3,8 @@ package com.de4bi.study.jpa.jpashop;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import com.de4bi.study.jpa.jpashop.domain.Member;
+
 import org.springframework.stereotype.Repository;
 
 @Repository

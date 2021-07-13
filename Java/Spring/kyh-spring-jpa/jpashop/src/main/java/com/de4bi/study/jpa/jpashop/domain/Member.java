@@ -1,5 +1,6 @@
-package com.de4bi.study.jpa.jpashop;
+package com.de4bi.study.jpa.jpashop.domain;
 
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -13,6 +14,8 @@ public class Member {
     
     @Id @GeneratedValue
     private Long id;
-    private String username;
+    
+    private String name;
 
+    private Address address;
 }

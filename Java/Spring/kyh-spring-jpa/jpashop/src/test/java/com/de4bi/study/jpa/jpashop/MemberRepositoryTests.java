@@ -1,5 +1,7 @@
 package com.de4bi.study.jpa.jpashop;
 
+import com.de4bi.study.jpa.jpashop.domain.Member;
+
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
