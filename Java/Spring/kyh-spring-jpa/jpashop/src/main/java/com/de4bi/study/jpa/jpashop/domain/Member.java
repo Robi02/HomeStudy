@@ -3,6 +3,7 @@ package com.de4bi.study.jpa.jpashop.domain;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -26,6 +27,6 @@ public class Member {
     @Embedded
     private Address address;
 
-    @OneToMany(mappedBy = "member") //  Order.java :: private Member member; 와 매핑
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL) //  Order.java :: private Member member; 와 매핑
     private List<Order> orders = new ArrayList<>();
 }

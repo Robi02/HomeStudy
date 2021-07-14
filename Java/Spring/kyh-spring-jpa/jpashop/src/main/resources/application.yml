@@ -9,6 +9,11 @@ spring:
   jpa:
 #    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
+#      naming:
+        # 비명시 테이블/컬럼명에 논리명 적용
+#        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+        # 물리명 적용
+#        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
       ddl-auto: create
     properties:
       hibernate:
