@@ -1,31 +1,31 @@
 package com.de4bi.study.jpa.jpashop.domain;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
 @Entity
-public class Member {
-    
+public class Delivery {
+
     @Id @GeneratedValue
-    @Column(name = "member_id")
+    @Column(name = "delivery_id")
     private Long id;
-    
-    private String name;
+
+    @OneToOne(mappedBy = "delivery")
+    private Order order;
 
     @Embedded
     private Address address;
 
-    @OneToMany(mappedBy = "member") //  Order.java :: private Member member; 와 매핑
-    private List<Order> orders = new ArrayList<>();
+    @Enumerated(EnumType.STRING)
+    private DeliveryStatus status;
 }
