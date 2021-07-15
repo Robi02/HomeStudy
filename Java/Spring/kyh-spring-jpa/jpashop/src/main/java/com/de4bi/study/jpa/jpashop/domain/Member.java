@@ -27,6 +27,6 @@ public class Member {
     @Embedded
     private Address address;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL) //  Order.java :: private Member member; 와 매핑
+    @OneToMany(mappedBy = "member") //  Order.java :: private Member member; 와 매핑
     private List<Order> orders = new ArrayList<>();
 }

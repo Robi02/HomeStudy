@@ -1,6 +1,7 @@
 package com.de4bi.study.jpa.jpashop;
 
 import com.de4bi.study.jpa.jpashop.domain.Member;
+import com.de4bi.study.jpa.jpashop.repository.MemberRepository;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
@@ -26,8 +27,9 @@ public class MemberRepositoryTests {
         member.setName("memberA");
         
         // when
-        Long savedId = memberRepository.save(member);
-        Member findMember = memberRepository.find(savedId);
+        Long savedId = member.getId();
+        memberRepository.save(member);
+        Member findMember = memberRepository.findOne(savedId);
 
         // then
         Assertions.assertThat(findMember.getId()).isEqualTo(member.getId());
