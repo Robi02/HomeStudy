@@ -3,7 +3,6 @@ package com.de4bi.study.jpa.jpashop.service;
 import javax.transaction.Transactional;
 
 import com.de4bi.study.jpa.jpashop.domain.Member;
-import com.de4bi.study.jpa.jpashop.service.MemberService;
 import com.de4bi.study.jpa.jpashop.repository.MemberRepository;
 
 import org.junit.Assert;
@@ -36,7 +35,7 @@ public class MemberServiceTest {
         Assert.assertEquals(member, memberRepository.findOne(memberId));
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void 중복_회원_에러() throws Exception {
         // given
         Member member1 = new Member();
@@ -47,13 +46,7 @@ public class MemberServiceTest {
 
         // when
         memberService.join(member1);
-
-        try {
-            memberService.join(member2); // 중복 회원: 예외가 발생해야 함
-        }
-        catch (IllegalStateException e) {
-            return;
-        }
+        memberService.join(member2); // 중복 회원: 예외가 발생해야 함
 
         // then
         Assert.fail("중복 회원 에러가 발생해야 함.");
