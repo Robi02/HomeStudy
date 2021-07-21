@@ -10,11 +10,14 @@ import javax.persistence.ManyToOne;
 
 import com.de4bi.study.jpa.jpashop.domain.item.Item;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter @Setter
 @Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter @Setter
 public class OrderItem {
 
     @Id @GeneratedValue

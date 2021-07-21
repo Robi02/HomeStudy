@@ -11,11 +11,14 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter @Setter
 @Entity
+@Getter @Setter
+// @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member {
     
     @Id @GeneratedValue

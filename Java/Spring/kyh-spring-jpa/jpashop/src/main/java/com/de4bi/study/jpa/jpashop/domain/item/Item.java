@@ -16,11 +16,12 @@ import com.de4bi.study.jpa.jpashop.domain.Category;
 import com.de4bi.study.jpa.jpashop.exception.NotEnoughtStockException;
 
 import lombok.Getter;
+import lombok.Setter;
 
-@Getter
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "dtype")
+@Getter @Setter
 public abstract class Item {
 
     @Id @GeneratedValue
@@ -53,5 +54,6 @@ public abstract class Item {
         if (remainStock < 0) {
             throw new NotEnoughtStockException("Need more stock.");
         }
+        this.stockQuantity = remainStock;
     }
 }
