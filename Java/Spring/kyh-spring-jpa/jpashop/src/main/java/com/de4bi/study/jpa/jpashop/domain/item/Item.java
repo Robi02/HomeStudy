@@ -39,6 +39,12 @@ public abstract class Item {
 
     // === 비즈니스 로직 ===
 
+    public void change(String name, int price, int stockQuantity) {
+        this.name = name;
+        this.price = price;
+        this.stockQuantity = stockQuantity;
+    }
+
     /**
      * stock 증가
      */

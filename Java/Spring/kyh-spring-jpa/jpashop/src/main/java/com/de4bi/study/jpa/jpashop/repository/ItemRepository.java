@@ -17,12 +17,11 @@ public class ItemRepository {
     private final EntityManager em;
 
     public void save(Item item) {
-        if (item.getId() == null) {
-            em.persist(item);
-        }
-        else {
-            em.merge(item);
-        }
+        em.persist(item);
+    }
+
+    public Item merge(Item item) {
+        return em.merge(item);
     }
 
     public Item findOne(Long id) {

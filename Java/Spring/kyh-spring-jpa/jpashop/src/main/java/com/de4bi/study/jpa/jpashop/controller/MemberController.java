@@ -1,9 +1,12 @@
 package com.de4bi.study.jpa.jpashop.controller;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
 import com.de4bi.study.jpa.jpashop.domain.Address;
 import com.de4bi.study.jpa.jpashop.domain.Member;
+import com.de4bi.study.jpa.jpashop.repository.MemberRepository;
 import com.de4bi.study.jpa.jpashop.service.MemberService;
 
 import org.springframework.stereotype.Controller;
@@ -40,5 +43,12 @@ public class MemberController {
         memberService.join(member);
         
         return "redirect:/";
+    }
+
+    @GetMapping("/members")
+    public String list(Model model) {
+        List<Member> members = memberService.findMembers();
+        model.addAttribute("members", members);
+        return "members/memberList";
     }
 }
