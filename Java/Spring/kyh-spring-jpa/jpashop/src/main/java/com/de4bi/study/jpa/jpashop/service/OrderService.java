@@ -10,6 +10,7 @@ import com.de4bi.study.jpa.jpashop.domain.item.Item;
 import com.de4bi.study.jpa.jpashop.repository.ItemRepository;
 import com.de4bi.study.jpa.jpashop.repository.MemberRepository;
 import com.de4bi.study.jpa.jpashop.repository.OrderRepository;
+import com.de4bi.study.jpa.jpashop.repository.OrderSearch;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,7 +64,7 @@ public class OrderService {
     /**
      * 주문 검색.
      */
-    // public List<Order> findOrders(OrderSearch orderSearch) {
-    //     return order
-    // }
+    public List<Order> findOrders(OrderSearch orderSearch) {
+        return orderRepository.findAllByString(orderSearch);
+    }
 }
