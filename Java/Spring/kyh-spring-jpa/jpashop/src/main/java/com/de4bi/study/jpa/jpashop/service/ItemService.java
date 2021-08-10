@@ -60,6 +60,6 @@ public class ItemService {
     //
     @Transactional
     public void updateItemByMerge(Long itemId, Book bookParam) {
-        Item mergedItem = itemRepository.merge(bookParam);
+        itemRepository.merge(bookParam);
     }
 }

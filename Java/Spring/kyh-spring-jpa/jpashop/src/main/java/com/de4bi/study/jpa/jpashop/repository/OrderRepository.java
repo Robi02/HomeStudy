@@ -131,4 +131,16 @@ public class OrderRepository {
         // 추후 강의에서 사용법 강의함
         return null;
     }
+
+    /**
+     * @return JPQL fetch join 을 사용하여 획득. (V3)
+     */
+    public List<Order> findAllWithMemberDelivery() {
+        return em.createQuery(
+            "select o from Order o" + 
+                " join fetch o.member m" +
+                " join fetch o.delivery d"
+            , Order.class
+        ).getResultList();
+    }
 }

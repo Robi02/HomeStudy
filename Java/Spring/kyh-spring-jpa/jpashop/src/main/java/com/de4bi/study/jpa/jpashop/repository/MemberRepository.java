@@ -3,9 +3,6 @@ package com.de4bi.study.jpa.jpashop.repository;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceUnit;
 
 import com.de4bi.study.jpa.jpashop.domain.Member;
 
