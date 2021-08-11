@@ -12,8 +12,11 @@ import com.de4bi.study.jpa.jpashop.domain.OrderItem;
 import com.de4bi.study.jpa.jpashop.domain.OrderStatus;
 import com.de4bi.study.jpa.jpashop.repository.OrderRepository;
 import com.de4bi.study.jpa.jpashop.repository.OrderSearch;
+import com.de4bi.study.jpa.jpashop.repository.order.query.OrderQueryDto;
+import com.de4bi.study.jpa.jpashop.repository.order.query.OrderQueryRepository;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.Data;
@@ -24,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 public class OrderApiController {
     
     private final OrderRepository orderRepository;
+    private final OrderQueryRepository orderQueryRepository;
 
     @GetMapping("/api/v1/orders")
     public List<Order> ordersV1() {
@@ -58,6 +62,30 @@ public class OrderApiController {
 
         return collect;
     }
+
+    /**
+     * @apiNote @xxxToOne 관계는 fetch join해도 페이징에 영향을 주지 않는다.
+     * 따라서, ToOne관계는 fetch join으로 쿼리 수를 줄이도록 하고, 나머지는
+     * hibernate.default_batch_fetch_size로 최적화를 한다.
+     */
+    @GetMapping("/api/v3.1/orders")
+    public List<OrderDto> ordersV3_page(
+        @RequestParam(value = "offset", defaultValue = "0") int offset,
+        @RequestParam(value = "limit", defaultValue = "100") int limit
+    ) {
+        List<Order> orders = orderRepository.findAllWithMemberDelivery(offset, limit);
+        List<OrderDto> collect = orders.stream()
+            .map(o -> new OrderDto(o))
+            .collect(Collectors.toList());
+
+        return collect;
+    }
+
+    @GetMapping("/api/v4/orders")
+    public List<OrderQueryDto> ordersV4() {
+        return orderQueryRepository.findOrderQueryDtos();
+    }
+    
 
     @Data
     static class OrderDto {

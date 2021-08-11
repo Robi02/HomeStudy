@@ -18,6 +18,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.BatchSize;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,6 +39,7 @@ public class Order {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    // @BatchSize(size = 1000) "[default_batch_fetch_size]"의 글로벌 설정을 필드별로 적용하고 싶을 경우.
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL) // CascadeType.ALL :: orderItems에 추가되는 @Entity가 있으면 자동으로 em.persist() 수행
     private List<OrderItem> orderItems = new ArrayList<>();
 
