@@ -3,7 +3,7 @@ package com.de4bi.study.jpa.jpashop.service;
 import javax.transaction.Transactional;
 
 import com.de4bi.study.jpa.jpashop.domain.Member;
-import com.de4bi.study.jpa.jpashop.repository.MemberRepository;
+import com.de4bi.study.jpa.jpashop.repository.MemberRepositoryOld;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -19,7 +19,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class MemberServiceTest {
     
     @Autowired MemberService memberService;
-    @Autowired MemberRepository memberRepository;
+    @Autowired MemberRepositoryOld memberRepository;
     
     @Test
     @Rollback(false) // @Rollback(false)를 빼버리면 sql로그에서 insert되는것을 확인할 수 없다.
