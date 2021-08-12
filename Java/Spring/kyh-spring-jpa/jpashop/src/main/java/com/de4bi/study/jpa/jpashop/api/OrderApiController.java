@@ -104,6 +104,27 @@ public class OrderApiController {
             .collect(Collectors.toList());
     }
 
+    /**
+     * [정리]
+     *  - V1 : 엔티티를 조회해서 그대로 반환.
+     *  - V2 : 엔티티 조회 후 DTO로 변환.
+     *  - V3 : 페치 조인으로 쿼리 수 최적화.
+     *  - V3.1 : 컬렉션 페이징과 한계 돌파.
+     *   -> @xxxToOne관계는 페치 조인으로 쿼리 수 최적화.
+     *   -> 컬렉션(@OneToMany)은 페치 조인 시 페이징 불가능.
+     *   -> 컬렉션은 페치 조인 대신 지연로딩 유지하고, @BatchSize로 최적화.
+     *  - V4 : JPA에서 DTO를 직접 조회.
+     *  - V5 : 컬렉션 조회 최적화 - 일대다 관계의 컬렉션은 IN 절을 활용하여 메모리에 선조회로 최적화.
+     *  - V6 : 플렛 데이터 최적화 - JOIN 결과를 그대로 조회 후 애플리케이션에서 원하는 모양으로 직접 변환.
+     * 
+     * [권장]
+     *  1. DTO대신 엔티티 조회 방식으로 우선 접근.
+     *   -> 페치 조인으로 쿼리수 최적화.
+     *   -> 컬렉션 최적화. (페이징 필요 시 @BatchSize로 최적화, 아니면 페치조인으로 최적화.)
+     *  2. 엔티티 조회 방식으로 해결이 안되면 DTO 조회 방식 사용.
+     *  3. DTO 조회 방식으로 해결이 안되면 NativeSQL이나 스플이 JDBC Template 활용.
+     */
+
     @Data
     static class OrderDto {
         private Long orderId;
