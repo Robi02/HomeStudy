@@ -45,6 +45,21 @@ public class OrderQueryRepository {
         return result;
     }
 
+    /**
+     * @apiNote 1쿼리로 처리.
+     */
+    public List<OrderFlatDto> findOrderQueryDtos3Flat() {
+        return em.createQuery(
+            "select new com.de4bi.study.jpa.jpashop.repository.order.query.OrderFlatDto" +
+            "(o.id, m.name, o.orderDate, o.status, d.address, i.name, oi.orderPrice, oi.count)" +
+            " from Order o" + 
+            " join o.member m" + 
+            " join o.delivery d" + 
+            " join o.orderItems oi" + 
+            " join oi.item i", OrderFlatDto.class
+        ).getResultList();
+    }
+
     private Map<Long, List<OrderItemQueryDto>> findOrderItemMap(List<Long> orderIds) {
         List<OrderItemQueryDto> orderItems = em.createQuery(
             "select new com.de4bi.study.jpa.jpashop.repository.order.query.OrderItemQueryDto(oi.order.id, i.name, oi.orderPrice, oi.count)" +

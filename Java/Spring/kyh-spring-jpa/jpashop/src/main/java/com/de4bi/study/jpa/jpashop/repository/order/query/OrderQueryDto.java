@@ -8,9 +8,10 @@ import com.de4bi.study.jpa.jpashop.domain.OrderStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-@Data @AllArgsConstructor @NoArgsConstructor
+@Data @AllArgsConstructor @NoArgsConstructor @EqualsAndHashCode(of = "orderId")
 public class OrderQueryDto {
     
     private Long orderId;
