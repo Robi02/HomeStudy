@@ -12,7 +12,14 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+
 import com.de4bi.study.jpa.jpashop.domain.Order;
+import com.de4bi.study.jpa.jpashop.domain.OrderStatus;
+
+import generated.com.de4bi.study.jpa.jpashop.domain.QMember;
+import generated.com.de4bi.study.jpa.jpashop.domain.QOrder;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
@@ -128,8 +135,35 @@ public class OrderRepository {
      * [#3] 동적 쿼리 작성 - JqueryDSL 라이브러리 사용 (권장)
      */
     public List<Order> findAll(OrderSearch orderSearch) {
-        // 추후 강의에서 사용법 강의함
-        return null;
+        
+        QOrder order = QOrder.order;
+        QMember member = QMember.member;
+
+        JPAQueryFactory query = new JPAQueryFactory(em);
+        
+        return query
+            .select(order)
+            .from(order)
+            .join(order.member, member)
+            .where(statusEq(orderSearch.getOrderStatus()), nameLike(orderSearch.getMemberName())) // 동적 쿼리 작성
+            .limit(1000)
+            .fetch();
+    }
+
+    private BooleanExpression statusEq(OrderStatus statusCond) {
+        if (statusCond == null) {
+            return null;
+        }
+
+        return QOrder.order.status.eq(statusCond);
+    }
+    
+    private BooleanExpression nameLike(String memberName) {
+        if (!StringUtils.hasText(memberName)) {
+            return null;
+        }
+
+        return QMember.member.name.like(memberName);
     }
 
     /**

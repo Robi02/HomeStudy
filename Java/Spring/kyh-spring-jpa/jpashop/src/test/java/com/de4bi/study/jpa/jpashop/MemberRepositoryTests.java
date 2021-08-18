@@ -1,7 +1,7 @@
 package com.de4bi.study.jpa.jpashop;
 
 import com.de4bi.study.jpa.jpashop.domain.Member;
-import com.de4bi.study.jpa.jpashop.repository.MemberRepositoryOld;
+import com.de4bi.study.jpa.jpashop.repository.MemberRepository;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest
 public class MemberRepositoryTests {
 
-    @Autowired MemberRepositoryOld memberRepository;
+    @Autowired MemberRepository memberRepository;
 
     @Test
     @Transactional // @Test 어노테이션이 있는 경우 rollback을 수행함

@@ -3,8 +3,8 @@ package com.de4bi.study.jpa.jpashop.service;
 import java.util.List;
 
 import com.de4bi.study.jpa.jpashop.domain.Member;
+import com.de4bi.study.jpa.jpashop.repository.MemberRepositorySDJ;
 import com.de4bi.study.jpa.jpashop.repository.MemberRepository;
-import com.de4bi.study.jpa.jpashop.repository.MemberRepositoryOld;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,8 +39,8 @@ public class MemberService {
      * 단건 조회.
      */
     public Member findOne(Long memberId) {
-        //return memberRepository.findOne(memberId); // old
-        return memberRepository.findById(memberId).get();
+        return memberRepository.findOne(memberId);
+        // return memberRepository.findById(memberId).get(); // Spring Data Jpa
     }
 
     /**
@@ -58,8 +58,8 @@ public class MemberService {
      */
     @Transactional
     public void update(Long id, String name) {
-        // Member member = memberRepository.findOne(id); // old
-        Member member = memberRepository.findById(id).get();
+        Member member = memberRepository.findOne(id);
+        // Member member = memberRepository.findById(id).get(); // Spring Data Jpa
         member.setName(name);
     }
 }

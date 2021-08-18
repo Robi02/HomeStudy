@@ -8,7 +8,7 @@ import com.de4bi.study.jpa.jpashop.domain.Order;
 import com.de4bi.study.jpa.jpashop.domain.OrderItem;
 import com.de4bi.study.jpa.jpashop.domain.item.Item;
 import com.de4bi.study.jpa.jpashop.repository.ItemRepository;
-import com.de4bi.study.jpa.jpashop.repository.MemberRepositoryOld;
+import com.de4bi.study.jpa.jpashop.repository.MemberRepository;
 import com.de4bi.study.jpa.jpashop.repository.OrderRepository;
 import com.de4bi.study.jpa.jpashop.repository.OrderSearch;
 
@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class OrderService {
     
     private final OrderRepository orderRepository;
-    private final MemberRepositoryOld memberRepository;
+    private final MemberRepository memberRepository;
     private final ItemRepository itemRepository;
 
     /**
