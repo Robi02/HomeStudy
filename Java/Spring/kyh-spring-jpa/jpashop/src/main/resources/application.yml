@@ -1,18 +1,20 @@
 spring:
   datasource:
-#    url: jdbc:h2:tcp://localhost/D:/dev/h2/db/jpashop
-    url: jdbc:h2:tcp://localhost/~/desktop/Study/h2/db/jpashop
+    url: jdbc:h2:tcp://localhost/D:/dev/h2/db/jpashop
+#    url: jdbc:h2:tcp://localhost/~/desktop/Study/h2/db/jpashop
     username: sa
     password: 
     driver-class-name: org.h2.Driver
 
   jpa:
-#    database-platform: org.hibernate.dialect.H2Dialect
+    ## OSIV(Open Session In View) : @Transactional 밖에서도 Lazy로딩등을 허용(true:default), 비허용(false)
+    ## ture시 편의성은 증대되나, DB커넥션을 cllient응답 시점까지 들고있게 되므로 커넥션 고갈 발생 가능.
+    open-in-view: false
     hibernate:
 #      naming:
-        # 비명시 테이블/컬럼명에 논리명 적용
+        ## 비명시 테이블/컬럼명에 논리명 적용
 #        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
-        # 물리명 적용
+        ## 물리명 적용
 #        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
       ddl-auto: create
     properties:
@@ -20,6 +22,7 @@ spring:
 #        dialect: org.hibernate.dialect.H2Dialect
         "[show_sql]": true
         "[format_sql]": true
+        "[default_batch_fetch_size]": 100
 
 logging:
   level:

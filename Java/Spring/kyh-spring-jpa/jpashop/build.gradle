@@ -2,16 +2,45 @@ plugins {
 	id 'org.springframework.boot' version '2.4.8'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
+	id "com.ewerk.gradle.plugins.querydsl" version "1.0.10" // query dsl
 }
 
 group = 'com.de4bi.study.jpa'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
+// query dsl
+
+apply plugin: "com.ewerk.gradle.plugins.querydsl"
+def querydslSrcDir = 'src/main/generated'
+
+querydsl {
+    library = "com.querydsl:querydsl-apt"
+    jpa = true
+    querydslSourcesDir = querydslSrcDir
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs 'src/main/java', querydslSrcDir
+        }
+    }
+}
+
+compileQuerydsl {
+    options.annotationProcessorPath = configurations.querydsl
+}
+
+// query dsl end
+
 configurations {
+	
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+
+	querydsl.extendsFrom compileClasspath // query dsl
 }
 
 repositories {
@@ -37,6 +66,11 @@ dependencies {
 
 	// *gavlyukovskiy::spring-boot-data-source-decorator
 	// implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:${version}")
+
+	// query dsl
+	implementation 'com.querydsl:querydsl-jpa'
+	implementation 'com.querydsl:querydsl-apt'
+	implementation 'com.querydsl:querydsl-core'
 }
 
 test {

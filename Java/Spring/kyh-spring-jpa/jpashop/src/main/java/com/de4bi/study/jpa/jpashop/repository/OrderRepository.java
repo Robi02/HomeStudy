@@ -12,7 +12,14 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+
 import com.de4bi.study.jpa.jpashop.domain.Order;
+import com.de4bi.study.jpa.jpashop.domain.OrderStatus;
+
+import generated.com.de4bi.study.jpa.jpashop.domain.QMember;
+import generated.com.de4bi.study.jpa.jpashop.domain.QOrder;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
@@ -128,12 +135,39 @@ public class OrderRepository {
      * [#3] 동적 쿼리 작성 - JqueryDSL 라이브러리 사용 (권장)
      */
     public List<Order> findAll(OrderSearch orderSearch) {
-        // 추후 강의에서 사용법 강의함
-        return null;
+        
+        QOrder order = QOrder.order;
+        QMember member = QMember.member;
+
+        JPAQueryFactory query = new JPAQueryFactory(em);
+        
+        return query
+            .select(order)
+            .from(order)
+            .join(order.member, member)
+            .where(statusEq(orderSearch.getOrderStatus()), nameLike(orderSearch.getMemberName())) // 동적 쿼리 작성
+            .limit(1000)
+            .fetch();
+    }
+
+    private BooleanExpression statusEq(OrderStatus statusCond) {
+        if (statusCond == null) {
+            return null;
+        }
+
+        return QOrder.order.status.eq(statusCond);
+    }
+    
+    private BooleanExpression nameLike(String memberName) {
+        if (!StringUtils.hasText(memberName)) {
+            return null;
+        }
+
+        return QMember.member.name.like(memberName);
     }
 
     /**
-     * @return JPQL fetch join 을 사용하여 획득. (V3)
+     * @return JPQL fetch join 을 사용하여 획득. (simple-orders V3)
      */
     public List<Order> findAllWithMemberDelivery() {
         return em.createQuery(
@@ -141,6 +175,31 @@ public class OrderRepository {
                 " join fetch o.member m" +
                 " join fetch o.delivery d"
             , Order.class
+        ).getResultList();
+    }
+
+    /**
+     * @return JPQL fetch join 을 사용하여 획득. (V3.1)
+     */
+    public List<Order> findAllWithMemberDelivery(int offset, int limit) {
+        return em.createQuery(
+            "select o from Order o" + 
+                " join fetch o.member m" +
+                " join fetch o.delivery d"
+            , Order.class
+        ).setFirstResult(offset).setMaxResults(limit).getResultList();
+    }
+
+    /**
+     * @return JPQL fetch join 을 사용하여 획득. (V3)
+     */
+    public List<Order> findAllWithItem() {
+        return em.createQuery(
+            "select distinct o from Order o" +      // distinct를 안넣으면 중복된 값이 딸려나온다.
+             " join fetch o.member m" +             // JPQL에서 distinct 예약어는, PK값으로 중복을 체크하여 제거한다. (DB에서의 distinct와는 조금 다름.)
+             " join fetch o.delivery d" +           // 
+             " join fetch o.orderItems oi" +        // [!] 1:N을 fetch join 하는 순간, DB paging이 불가능해진다. (limit, offset sql쿼리가 실행되지 않음)
+             " join fetch oi.item i", Order.class   // 가져온 결과를 메모리로 가져와서 페이징하게 된다. 매우 큰 부하가 발생 가능. (하이버네이트에서 WARN로그 출력됨)
         ).getResultList();
     }
 }
