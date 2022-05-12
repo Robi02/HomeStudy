@@ -19,7 +19,8 @@ public class SetupTeardownIncluder {
     private SetupTeardownIncluder(PageData pageData) {
         this.pageData = pageData;
         testPage = pageData.getWikiPage();
-        pageCrawler = testPage.getPageCrawler();
+        pageCrawler 
+        = testPage.getPageCrawler();
         newPageContent = new StringBuffer();
     }
 
